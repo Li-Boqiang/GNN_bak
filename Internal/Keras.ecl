@@ -570,12 +570,8 @@ EXPORT Keras := MODULE
       # We've got some data
       # Do some error checking.
       for i in range(len(xAL)):
-        # len(xAL) == 1
-        # Boqiang debug, check xA
-        # assert 1 == 0, len(xAL)
         xA = xAL[i]
         yA = yAL[i]
-        # assert 1 == 0, len(xA) 512
         if xA.size == 0 or yA.size == 0 or xA.shape[0] != yA.shape[0]:
           assert 1 == 0, 'Fit: X and Y sizes do not match or are zero: xShape = ' + str(xA.shape) + ', yShape = ' + str(yA.shape)
         if xA.shape[0] == 0:
@@ -584,7 +580,6 @@ EXPORT Keras := MODULE
     else:
       # No valid x or y data
       validxy = False
-    # assert 1 == 0, validxy  (True)
     
     if validxy:
       # Received valid data
@@ -592,9 +587,10 @@ EXPORT Keras := MODULE
       # Set the starting weights
       mod.set_weights(wA)
       # Run one batch to fit the model
-      # assert 1==0, type(xAL)
-      tfHistory = mod.fit(xAL, yAL, epochs=epoch, batch_size=kbatchsize, initial_epoch=epoch-1, shuffle=False)
-      # assert 1 == 0, '3333333333333333333333333333'
+      if len(xAL) == 1:
+        tfHistory = mod.fit(xAL[0], yAL[0], epochs=epoch, batch_size=kbatchsize, initial_epoch=epoch-1, shuffle=False)
+      else:
+        tfHistory = mod.fit(xAL, yAL, epochs=epoch, batch_size=kbatchsize, initial_epoch=epoch-1, shuffle=False)
       # Update the cumulative (epoch) loss
       currLoss = tfHistory.history['loss'][-1]
       cumLoss[modelid] += currLoss
