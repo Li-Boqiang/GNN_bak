@@ -846,7 +846,7 @@ EXPORT Keras := MODULE
           # Get the model
           mod = modcache[model_id]
           # Return the generator that will produce the output Tensor list
-          return predGen(mod, sess)
+          return predGen(mod)
         except:
           # An error occurred during Predict.
           assert 0 == 1, format_exc('Predict2')
