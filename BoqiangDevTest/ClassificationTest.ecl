@@ -1,9 +1,3 @@
-/*
-About this test:
-    Test the functions of defining a neural network(), obtaining weights, 
-    setting weights, training neural networks, obtaining Loss, and Predict.
-*/
-
 IMPORT Python3 AS Python;
 IMPORT $.^ AS GNN;
 IMPORT GNN.Tensor;
