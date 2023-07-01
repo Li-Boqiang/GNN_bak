@@ -911,8 +911,6 @@ EXPORT Keras := MODULE
           exec('mod.' + rec[3])
       # Add this model to the model cache
       modcache[modId] = mod
-      # And the session to the session cache
-      sesscache[modId] = tfSession
       # We succeeded.  Return a blank status to indicate success.
       return [(nodeId, modId, kStrTypeDict['status'], '')]
     except:
