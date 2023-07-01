@@ -29,6 +29,8 @@ mod := GNNI.DefineKAModel(s, fname, mdef);
 
 OUTPUT(mod, NAMED('mod'));
 wts := GNNI.GetWeights(mod);
+
+OUTPUT(wts, , '~thor::weights.csv', OVERWRITE, CSV(HEADING));
 OUTPUT(wts[1], NAMED('InitWeights_1'));
 OUTPUT(wts[2], NAMED('InitWeights_2'));
 

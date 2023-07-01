@@ -12,12 +12,11 @@ ds := DATASET([{'John', 30, 'Doctor'},
 
 OUTPUT_PATH := 'outputfile.csv';
 
-OUTPUT(ds, , '~thor::outdata.csv', OVERWRITE);
+OUTPUT(ds, , '~thor::outdata.csv', OVERWRITE, CSV(HEADING));
 
 // STD.File.Copy(OUTPUT_PATH, '~myuser/outputfile.csv', true);
 
 
-myData := DATASET('~thor::outdata.csv', Layout, CSV);
-// myData := DATASET('~thor::outdata.csv', Layout, CSV(HEADING(1)));
+// myData := DATASET('~thor::outdata.csv', Layout, CSV);
 
-OUTPUT(myData, NAMED('myData'));
+// OUTPUT(myData, NAMED('myData'));
