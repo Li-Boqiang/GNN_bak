@@ -884,8 +884,8 @@ EXPORT Keras := MODULE
     from tensorflow.keras import layers
     global nextModId
     gpu_device_name = tf.test.gpu_device_name()
-    # assert l == 0, len(gpu_device_name)
-    assert l == 0, gpu_device_name
+    # assert 1 == 0, len(gpu_device_name)
+    assert 1 == 0, gpu_device_name
 
 
 
