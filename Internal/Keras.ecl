@@ -869,6 +869,58 @@ EXPORT Keras := MODULE
     * multiple Keras models).  If needed, care should be taken to ensure
     * that Shutdown is actually executed (i.e. by outputting the results).
     */
+
+  /** Function to load a pre-trained Keras model and (optionally) compile the model.
+    * Returns a kString dataset.  An empty string indicates success.  Otherwise
+    * the kString record contains an error message.
+    * DefineKAModel gets called on each node of the cluster.
+    */
+  EXPORT STREAMED DATASET(kString) DefineKAModel(STRING fname, STREAMED DATASET(kString) mdef, UNSIGNED4 seqId)
+                      := EMBED(Python: globalscope(globalScope), persist('query'), activity)
+    try:
+      import tensorflow as tf # V2.x
+    except:
+      assert 1 == 0, 'tensorflow not found'
+    from tensorflow.keras import layers
+    global nextModId
+    try:
+      # Allocate a new modelId
+      # Make sure we do it atomically to avoid conflict with
+      # another model running on another thread
+      threadlock.acquire()
+      modId = nextModId
+      nextModId += 1
+      threadlock.release()
+      # Create a new keras / tensorflow context.  It sometimes gets lost between calls,
+      # so we explicitly restore it before each call that uses it.
+      # Note that for each model, we create a new session and new graph under the hood.
+      # The graph is stored within the session, so only the session and model are stored,
+      # both by model id.
+      for rec in mdef:
+        if rec[0] != nodeId:
+          # Make sure we are only processing data meant for this node.
+          continue
+        rectype = rec[2]
+        # If it is a layer definition string.  Add it to the model.
+        if rectype == kStrTypeDict['layer']:
+          mod = eval ("tf.keras.applications." + fname + "(" + rec[3] + ")")
+        # If it's a compile string, use it to compile the model.  All
+        # layer strings need to precede any compile strings.  Only one
+        # compile string should be supplied.
+        elif rectype == kStrTypeDict['compile']:
+          exec('mod.' + rec[3])
+      # Add this model to the model cache
+      modcache[modId] = mod
+      # And the session to the session cache
+      sesscache[modId] = tfSession
+      # We succeeded.  Return a blank status to indicate success.
+      return [(nodeId, modId, kStrTypeDict['status'], '')]
+    except:
+      # We had an error.  Format the exception and return it in the kString
+      return [(nodeId, 1, kStrTypeDict['status'], format_exc('DefineKAMod'))]
+  ENDEMBED; // DefineKAModel
+
+
   EXPORT STREAMED DATASET(kString) Shutdown(
               STREAMED DATASET(kString) temp,
               UNSIGNED4 seqId) :=
