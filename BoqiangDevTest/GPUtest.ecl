@@ -2,9 +2,10 @@ IMPORT PYTHON3 AS PYTHON;
 
 STRING GPUtest() := EMBED(Python)
   import tensorflow as tf
-  #gpu_device_name = tf.test.gpu_device_name()
-  #assert 1==0, len(gpu_device_name)
-  # assert 1==0, tf.test.is_gpu_available()
+  import sys
+  # return sys.version
+  # return tf.__version__
+  # return str(tf.config.list_physical_devices('GPU'))
   if tf.test.is_gpu_available():
     return 'available'
   else:

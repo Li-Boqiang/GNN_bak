@@ -11,8 +11,9 @@ ds := DATASET([{'John', 30, 'Doctor'},
                {'Bob', 35, 'Teacher'}], Layout);
 
 OUTPUT_PATH := 'outputfile.csv';
+OUTPUT(ds, , '~thor::outdata.csv', OVERWRITE, CSV(HEADING(SINGLE)));
 
-OUTPUT(ds, , '~thor::outdata.csv', OVERWRITE, CSV(HEADING));
+// OUTPUT(ds, , '~thor::outdata.csv', OVERWRITE, CSV(HEADING(1)));
 
 // STD.File.Copy(OUTPUT_PATH, '~myuser/outputfile.csv', true);
 

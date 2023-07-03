@@ -883,6 +883,7 @@ EXPORT Keras := MODULE
       assert 1 == 0, 'tensorflow not found'
     from tensorflow.keras import layers
     global nextModId
+    assert 1==0, 'boqiang test'
     try:
       # Allocate a new modelId
       # Make sure we do it atomically to avoid conflict with
