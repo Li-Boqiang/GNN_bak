@@ -18,6 +18,6 @@ OUTPUT(ds, , '~thor::outdata.csv', OVERWRITE, CSV(HEADING(SINGLE)));
 // STD.File.Copy(OUTPUT_PATH, '~myuser/outputfile.csv', true);
 
 
-// myData := DATASET('~thor::outdata.csv', Layout, CSV);
+myData := DATASET('~thor::outdata.csv', Layout, CSV);
 
 // OUTPUT(myData, NAMED('myData'));
