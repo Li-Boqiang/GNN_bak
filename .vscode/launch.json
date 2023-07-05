@@ -25,7 +25,7 @@
             "type": "ecl",
             "request": "launch",
             "protocol": "http",
-            "serverAddress": "172.22.145.188",
+            "serverAddress": "localhost",
             "port": 8010,
             "path": "",
             "targetCluster": "thor",
