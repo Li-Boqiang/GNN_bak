@@ -12,6 +12,7 @@ IMPORT GNN.Types;
 IMPORT GNN.GNNI;
 IMPORT GNN.Internal AS Int;
 IMPORT ML_Core AS mlc;
+// IMPORT STD;
 kString := iTypes.kString;
 kStrType := iTypes.kStrType;
 NumericField := mlc.Types.NumericField;
@@ -20,7 +21,8 @@ t_Tensor := Tensor.R4.t_Tensor;
 // Prepare training data
 RAND_MAX := POWER(2,32) -1;
 
-
+// INTEGER seed := 12345;
+// RANDOMIZE(seed);
 // Test parameters
 trainCount := 1000;
 testCount := 100;
