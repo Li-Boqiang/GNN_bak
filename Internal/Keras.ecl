@@ -56,6 +56,7 @@ EXPORT Keras := MODULE
       #   Extract the initialization parameters from initdata
       for rec in initdata:
         nodeId, nNodes, maxSliceLen = rec # Should only be one record
+      assert 1==0, maxSliceLen
       #   Model cache indexed by model id.
       global modcache
       modcache = {}
