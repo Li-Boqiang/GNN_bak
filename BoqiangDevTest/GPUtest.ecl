@@ -1,32 +1,21 @@
-IMPORT PYTHON3 AS PYTHON;
+IMPORT Python3 AS Python;
+IMPORT $.^ AS GNN;
+IMPORT GNN.Tensor;
+IMPORT GNN.Internal.Types AS iTypes;
+IMPORT GNN.Types;
+IMPORT GNN.GNNI;
+IMPORT GNN.Internal AS Int;
+IMPORT ML_Core AS mlc;
 
 STRING GPUtest() := EMBED(Python)
   import tensorflow as tf
+  import os
   import subprocess
-  # return sys.version
-  # return tf.__version__
+  # os.environ["CUDA_VISIBLE_DEVICES"]="-1"
   return str(tf.config.list_physical_devices('GPU'))
-  #env_vars = os.environ
-  #res = ""
-  #for key, value in env_vars.items():
-  #  res = res + f"{key}: {value}"
-  #  res = res + '\n'
-  #return res
-  if tf.test.is_gpu_available():
-    return 'available'
-  else:
-    return 'unavailable'
-
-  command = "env"  # 替换为您要执行的实际命令
-  # command = "nvcc --version"  # 替换为您要执行的实际命令
-  result = subprocess.run(command, shell=True, capture_output=True, text=True)
-  exit_code = result.returncode
-  output = result.stdout
-  error = result.stderr
-  #return output
-  t = tf.config.list_physical_devices('GPU')
-  return t[0]
 ENDEMBED;
 
+s := GNNI.GetSession(0);
+OUTPUT(s, NAMED('s'));
 res := GPUtest();
 OUTPUT(res, NAMED('res'))

@@ -544,8 +544,10 @@ EXPORT Keras := MODULE
     except:
       assert 1 == 0, 'tensorflow not found'
     import numpy as np
+    import os
+    os.environ["CUDA_VISIBLE_DEVICES"]="-1"
     global currEpoch, batchCount, cumLoss
-
+    
 
     # Boqiang Debug
 
