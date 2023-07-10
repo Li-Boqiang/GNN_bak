@@ -43,33 +43,6 @@ EXPORT Keras := MODULE
               EMBED(Python: globalscope(globalScope), persist('query'), activity)
     # Function to initialize all the global variables and functions.  This should
     # only be called once.
-    
-
-    # Boqiang Test
-    import tensorflow as tf # V2.x
-    from tensorflow.keras import layers
-    import numpy as np
-    import math
-    for rec in initdata:
-      nodeId, nNodes, maxSliceLen = rec # Should only be one record
-    assert 1==0, maxSliceLen
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def initGlobals():
       try:
         import tensorflow as tf # V2.x
