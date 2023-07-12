@@ -292,7 +292,7 @@ EXPORT GNNI := MODULE
     *         returned from ToJSON(...).
     * @return A model token to be used in subsequent GNNI calls.
     */
-  EXPORT UNSIGNED4 FromJSON(UNSIGNED4 sess, STRING json) := FUNCTION
+  SHARED UNSIGNED4 FromJSON_(UNSIGNED4 sess, STRING json) := FUNCTION
     mdefRepl := DATASET(1, TRANSFORM(kString,
                                     SELF.id :=1,
                                     SELF.typ := kStrType.json,
@@ -309,6 +309,10 @@ EXPORT GNNI := MODULE
     modelBase := modelId * kerasIdFactor;
     model := IF(LENGTH(status) = 0, getToken(sess + modelBase), 0);
     RETURN model;
+  END;
+
+  EXPORT UNSIGNED4 FromJSON(UNSIGNED4 sess, STRING json) := FUNCTION
+    RETURN FromJSON_(sess, json);
   END;
   /**
     * Compile a previously defined Keras model.
@@ -838,22 +842,26 @@ EXPORT GNNI := MODULE
     RETURN model;
   END;  
 
-  // EXPORT DATASET(GNN_Model) getModel(UNSIGNED4 mod) := FUNCTION
-  //   json := ToJSON(mod);    // Why is this wrong?
-  //   layersRec := DATASET(1, TRANSFORM(GNN_Model, SELF.model_JSON := json, 
-  //     SELF.wi := 0, DISTRIBUTED));
-  //   weights := GetWeights(mod);
-  //   modWeights := PROJECT(weights, TRANSFORM(GNN_Model, SELF := LEFT));
-  //   fullModel := layersRec + modWeights;
-  //   // fullModel := JOIN(layersRec, modWeights); // JOIN?
-  //   RETURN fullModel;
-  // END;
+  EXPORT DATASET(GNN_Model) getModel(UNSIGNED4 mod) := FUNCTION
+    kModelId := mod DIV kerasIdFactor;
+    results := Keras.ToJSON(DATASET([], kString), mod, kModelId);
+    json := results[1].text;
+    layersRec := DATASET(1, TRANSFORM(GNN_Model, SELF.model_JSON := json, 
+      SELF.wi := 0, SELF.nodeId := 0, SELF.sliceId := 0, SELF.shape := [], SELF.dataType := 0, 
+      SELF.maxSliceSize := 0, SELF.sliceSize := 0, SELF.denseData := [], 
+      SELF.sparseData := DATASET([], Tensor.R4.t_SparseDat)), DISTRIBUTED);
+    weights := GetWeights(mod);
+    modWeights := PROJECT(weights, TRANSFORM(GNN_Model, SELF := LEFT));
+    fullModel := layersRec + modWeights;
+    RETURN fullModel;
+  END;
 
-  // EXPORT UNSIGNED4 setModel(DATASET(GNN_Model) fullModel) := FUNCTION
-  //   layerJSON := fullModel(wi = 0)[1].model_JSON;
-  //   trainedWeights := PROJECT(fullModel(wi > 0), TRANSFORM(t_Tensor));
-  //   modId := GNNI.toJSON(layerJSON);
-  //   RETURN GNNI.setWeights(modId, trainedWeights);
-  // END;
+  EXPORT UNSIGNED4 setModel(UNSIGNED4 sess, DATASET(GNN_Model) fullModel) := FUNCTION
+    layerJSON := fullModel(wi = 0)[1].model_JSON;
+    trainedWeights := PROJECT(fullModel(wi > 0), t_Tensor);
+
+    modId := FromJSON_(sess, layerJSON);
+    RETURN setWeights(modId, trainedWeights);
+  END;
 
 END; // GNNI

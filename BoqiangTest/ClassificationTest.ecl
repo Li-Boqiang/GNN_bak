@@ -12,6 +12,7 @@ IMPORT GNN.Types;
 IMPORT GNN.GNNI;
 IMPORT GNN.Internal AS Int;
 IMPORT ML_Core AS mlc;
+IMPORT STD;
 // IMPORT STD;
 kString := iTypes.kString;
 kStrType := iTypes.kStrType;
@@ -28,16 +29,26 @@ trainCount := 1000;
 testCount := 100;
 featureCount := 5;
 classCount := 3;
-numEpochs := 5;
+numEpochs := 40;
 batchSize := 128;
 
 
 ldef := ['''layers.Dense(16, activation='tanh', input_shape=(5,))''',
           '''layers.Dense(16, activation='relu')''',
+          '''layers.Dense(16, activation='relu')''',
+          '''layers.Dense(16, activation='relu')''',
+          '''layers.Dense(16, activation='relu')''',
+          '''layers.Dense(16, activation='relu')''',
+          '''layers.Dense(16, activation='relu')''',
+          '''layers.Dense(16, activation='relu')''',
+          '''layers.Dense(16, activation='relu')''',
+          '''layers.Dense(16, activation='relu')''',
+          '''layers.Dense(16, activation='relu')''',
+          '''layers.Dense(16, activation='relu')''',
           '''layers.Dense(3, activation='softmax')'''];
 
-compileDef := '''compile(optimizer=tf.keras.optimizers.experimental.SGD(learning_rate=0.05),
-              loss=tf.keras.losses.CategoricalCrossentropy(),
+compileDef := '''compile(optimizer=tf.keras.optimizers.SGD(.05),
+              loss=tf.keras.losses.categorical_crossentropy,
               metrics=['accuracy'])
               ''';
 
@@ -54,7 +65,6 @@ s := GNNI.GetSession(1);
 OUTPUT(s, NAMED('s'));
 
 mod := GNNI.DefineModel(s, ldef, compileDef);
-OUTPUT(mod, NAMED('mod'));
 wts := GNNI.GetWeights(mod);
 OUTPUT(wts, NAMED('InitWeights'));
 
@@ -138,10 +148,21 @@ testY := NORMALIZE(test, classCount, TRANSFORM(NumericField,
 OUTPUT(testX, NAMED('testX'));
 OUTPUT(testY, NAMED('testY'));
 
+// StartTime:= STD.Date.CurrentTime(TRUE); //Local Time
+// o_start := OUTPUT(StartTime, NAMED('StartTime'));
+// start_when := WHEN(testX, o_start);
+OUTPUT(mod, NAMED('mod'));
 
 mod3 := GNNI.FitNF(mod, trainX, trainY, batchSize := batchSize, numEpochs := numEpochs);
 
-OUTPUT(mod3, NAMED('mod3'));
+SEQUENTIAL([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')), OUTPUT(mod3, NAMED('mod3')), 
+  OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end'))]);
+
+// EndTime:= STD.Date.CurrentTime(TRUE); //Local Time
+// OUTPUT(EndTime, NAMED('EndTime'));
+
+
+// OUTPUT(mod3, NAMED('mod3'));
 
 losses := GNNI.GetLoss(mod3);
 OUTPUT(losses, NAMED('losses'));

@@ -20,7 +20,7 @@ SET OF REAL4 get_train_X() := EMBED(Python)
   import numpy as np
   mnist = tf.keras.datasets.mnist
   (x_train, y_train), (x_test, y_test) = mnist.load_data()
-  # x_train = x_train[:10]
+  # x_train = x_train[:2]
   x_train = x_train*1.0/255
   return x_train.flatten().tolist()
 ENDEMBED;
@@ -30,7 +30,7 @@ SET OF REAL4 get_train_Y() := EMBED(Python)
   import numpy as np
   mnist = tf.keras.datasets.mnist
   (x_train, y_train), (x_test, y_test) = mnist.load_data()
-  # y_train = y_train[:10]
+  # y_train = y_train[:2]
   y_one_hot = np.eye(10)[y_train]
   res = y_one_hot.flatten().tolist()
   return y_one_hot.flatten().tolist()
@@ -69,10 +69,10 @@ STRING getcurrent_time() := EMBED(Python)
   current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
   return current_time
 ENDEMBED;
-start_time := getcurrent_time();
-o_start := OUTPUT(start_time, NAMED('start_time'));
+// start_time := getcurrent_time();
+// o_start := OUTPUT(start_time, NAMED('start_time'));
 x := Tensor.R4.MakeTensor([0,28,28], x3);
-start_when := when(x, o_start);
+// start_when := WHEN(x, o_start);
 
 y := Tensor.R4.MakeTensor([0, 10], y3);
 // OUTPUT(x, NAMED('x_tensor'));
