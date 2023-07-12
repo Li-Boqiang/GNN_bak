@@ -64,7 +64,16 @@ y3 := PROJECT(y2, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/10) + 1,
 // OUTPUT(x3, NAMED('x3'));
 // OUTPUT(y3, NAMED('y3'));
 
+STRING getcurrent_time() := EMBED(Python)
+  from datetime import datetime
+  current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+  return current_time
+ENDEMBED;
+start_time := getcurrent_time();
+o_start := OUTPUT(start_time, NAMED('start_time'));
 x := Tensor.R4.MakeTensor([0,28,28], x3);
+start_when := when(x, o_start);
+
 y := Tensor.R4.MakeTensor([0, 10], y3);
 // OUTPUT(x, NAMED('x_tensor'));
 // OUTPUT(y, NAMED('y_tensor'));
@@ -95,7 +104,7 @@ mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
 // OUTPUT(mdef1, NAMED('mdef_test'));                                             
 // OUTPUT(compileDef, NAMED('compileDef'));   
 
-s := GNNI.GetSession(0);
+s := GNNI.GetSession(1);
 // OUTPUT(s, NAMED('s'));
 mod := GNNI.DefineModel(s, ldef, compileDef);
 // OUTPUT(mod, NAMED('mod'));
@@ -115,22 +124,27 @@ lrr := 1.0;  // Learning Rate Reduction.  1 = no reduction.  .1 = reduction to 1
 
 // Get current time 
 
-STRING getcurrent_time() := EMBED(Python)
-  from datetime import datetime
-  current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-  return current_time
-ENDEMBED;
+// STRING getcurrent_time() := EMBED(Python)
+//   from datetime import datetime
+//   current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+//   return current_time
+// ENDEMBED;
 
-start_time := getcurrent_time();
-OUTPUT(start_time, NAMED('start_time'));
+// start_time := getcurrent_time();
+// OUTPUT(start_time, NAMED('start_time'));
 
 // Train model
 mod2 := GNNI.Fit(mod, x, y, batchSize := batchSize, numEpochs := numEpochs,
                       trainToLoss := trainToLoss, learningRateReduction := lrr,
                       batchSizeReduction := bsr);
 
+OUTPUT(mod2, NAMED('mod2'));
+
+SEQUENTIAL([OUTPUT(getCurrent_time(), NAMED('start')), OUTPUT(mod2, NAMED('model')), OUTPUT(getCurrent_time(), NAMED('end'))]);
+
 end_time := getcurrent_time();
-OUTPUT(end_time, NAMED('end_time'));
+o_end := OUTPUT(end_time, NAMED('end_time'));
+end_when := when(mod2, o_end);
 
 // Test model
 Prediction := GNNI.Predict(mod2, x);

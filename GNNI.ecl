@@ -136,6 +136,14 @@ FuncLayerDef := GNN.Types.FuncLayerDef;
   *
   */
 EXPORT GNNI := MODULE
+  EXPORT GNN_Model := RECORD(t_Tensor)  // Inherit from t_Tensor
+     STRING model_JSON := '';
+  END;
+
+  EXPORT GNN_Model getModel() := FUNCTION
+    
+  END;
+  
   /**
     * Generate a sequential token.  By making this a python function,
     * we prevent the compiler from pre-determining the result, potentially
