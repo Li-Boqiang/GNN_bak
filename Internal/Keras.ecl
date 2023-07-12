@@ -439,7 +439,10 @@ EXPORT Keras := MODULE
       assert 1 == 0, 'tensorflow not found'
     global nextModId
     # Should be only one record on each node
-    assert 1==0, ksjson
+    
+    for rec in ksjson:
+      json = rec[2]
+      assert 1==0, json
     try:
       json = 'EMPTY'
       for rec in ksjson:
