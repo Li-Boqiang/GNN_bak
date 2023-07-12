@@ -439,19 +439,11 @@ EXPORT Keras := MODULE
       assert 1 == 0, 'tensorflow not found'
     global nextModId
     # Should be only one record on each node
-    
-    for rec in ksjson:
-      json = rec[2]
-      #assert 1==0, rec[0] 
-      # assert 1==0, rec[1] 
-      # assert 1==0, rec[2] 
-      assert 1==0, rec[3] 
-    
     try:
       json = 'EMPTY'
       for rec in ksjson:
         # Should only be one json kString record.
-        json = rec[2]
+        json = rec[3]
       # Restore the keras / tensorflow context for this model.
       mod = tf.keras.models.model_from_json(json)
       modId = nextModId
