@@ -183,7 +183,7 @@ EXPORT GNNI := MODULE
     status := reduceResults(kstatus);
     model := IF(LENGTH(status) = 0, getToken(0), 0);
     RETURN model;
- END;
+  END;
   /**
     * Define a Keras / Tensorflow model using Keras sytax.  Optionally
     * also provide a "compile" line with the compilation parameters for the
@@ -837,20 +837,24 @@ EXPORT GNNI := MODULE
     RETURN model;
   END;  
 
-  EXPORT DATASET(GNN_Model) getModel(UNSIGNED4 mod) := FUNCTION
-    json := ToJSON(mod);
-    layersRec := DATASET(1, TRANSFORM(GNN_Model, SELF.model_JSON := json, 
-      SELF.wi := 0, DISTRIBUTED));
-    weights := GetWeights(mod);
-    modWeights := PROJECT(weights, TRANSFORM(GNN_Model, SELF := LEFT));
-    fullModel := layersRec + modWeights;
-    RETURN fullModel;
-  END;
+  // EXPORT DATASET(GNN_Model) getModel(UNSIGNED4 mod) := FUNCTION
+  //   json := ToJSON(mod);
+  //   layersRec := DATASET(1, TRANSFORM(GNN_Model, SELF.model_JSON := json, 
+  //     SELF.wi := 0, DISTRIBUTED));
+  //   weights := GetWeights(mod);
+  //   modWeights := PROJECT(weights, TRANSFORM(GNN_Model, SELF := LEFT));
+  //   fullModel := layersRec + modWeights;
+  //   RETURN fullModel;
+  // END;
 
-  EXPORT UNSIGNED4 setModel(DATASET(GNN_Model) fullModel) := FUNCTION
-    layerJSON := fullModel(wi = 0)[1].model_JSON;
-    trainedWeights := PROJECT(fullModel(wi > 0), TRANSFORM(t_Tensor));
-    modId := GNNI.toJSON(layerJSON);
-    RETURN GNNI.setWeights(modId, trainedWeights);
+  // EXPORT UNSIGNED4 setModel(DATASET(GNN_Model) fullModel) := FUNCTION
+  //   layerJSON := fullModel(wi = 0)[1].model_JSON;
+  //   trainedWeights := PROJECT(fullModel(wi > 0), TRANSFORM(t_Tensor));
+  //   modId := GNNI.toJSON(layerJSON);
+  //   RETURN GNNI.setWeights(modId, trainedWeights);
+  // END;
+
+  EXPORT testFunction(UNSIGNED4 mod1) := FUNCTION
+    json := ToJSON(mod1);
   END;
 END; // GNNI
