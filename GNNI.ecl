@@ -136,6 +136,7 @@ FuncLayerDef := GNN.Types.FuncLayerDef;
   *
   */
 EXPORT GNNI := MODULE
+
   EXPORT GNN_Model := RECORD(t_Tensor)
      STRING model_JSON := '';
   END;
@@ -838,12 +839,13 @@ EXPORT GNNI := MODULE
   END;  
 
   // EXPORT DATASET(GNN_Model) getModel(UNSIGNED4 mod) := FUNCTION
-  //   json := ToJSON(mod);
+  //   json := ToJSON(mod);    // Why is this wrong?
   //   layersRec := DATASET(1, TRANSFORM(GNN_Model, SELF.model_JSON := json, 
   //     SELF.wi := 0, DISTRIBUTED));
   //   weights := GetWeights(mod);
   //   modWeights := PROJECT(weights, TRANSFORM(GNN_Model, SELF := LEFT));
   //   fullModel := layersRec + modWeights;
+  //   // fullModel := JOIN(layersRec, modWeights); // JOIN?
   //   RETURN fullModel;
   // END;
 
@@ -854,7 +856,4 @@ EXPORT GNNI := MODULE
   //   RETURN GNNI.setWeights(modId, trainedWeights);
   // END;
 
-  EXPORT testFunction(UNSIGNED4 mod1) := FUNCTION
-    json := ToJSON(mod1);
-  END;
 END; // GNNI
