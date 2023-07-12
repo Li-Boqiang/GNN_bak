@@ -440,11 +440,9 @@ EXPORT Keras := MODULE
     global nextModId
     # Should be only one record on each node
     
-    boqiang_test_i = 0
     for rec in ksjson:
       json = rec[2]
-      boqiang_test_i = boqiang_test_i + 1 
-    assert 1==0, boqiang_test_i
+      assert 1==0, len(rec) 
     
     try:
       json = 'EMPTY'
