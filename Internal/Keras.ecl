@@ -442,7 +442,7 @@ EXPORT Keras := MODULE
     
     for rec in ksjson:
       json = rec[2]
-      assert 1==0, json
+      assert 1==0, len(ksjson)
     try:
       json = 'EMPTY'
       for rec in ksjson:
