@@ -443,7 +443,7 @@ EXPORT Keras := MODULE
     for rec in ksjson:
       json = rec[2]
       #assert 1==0, rec[0] 
-      assert 1==0, rec[1] 
+      # assert 1==0, rec[1] 
       assert 1==0, rec[2] 
       assert 1==0, rec[3] 
     
