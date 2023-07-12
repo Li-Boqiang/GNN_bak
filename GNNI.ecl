@@ -136,13 +136,9 @@ FuncLayerDef := GNN.Types.FuncLayerDef;
   *
   */
 EXPORT GNNI := MODULE
-  EXPORT GNN_Model := RECORD(t_Tensor)  // Inherit from t_Tensor
+  EXPORT GNN_Model := RECORD(t_Tensor)
      STRING model_JSON := '';
   END;
-
-  // EXPORT GNN_Model getModel() := FUNCTION
-
-  // END;
   
   /**
     * Generate a sequential token.  By making this a python function,
@@ -840,4 +836,21 @@ EXPORT GNNI := MODULE
     model := IF(LENGTH(status) = 0, getToken(sess + modelBase), 0);
     RETURN model;
   END;  
+
+  EXPORT DATASET(GNN_Model) getModel(UNSIGNED4 mod) := FUNCTION
+    json := ToJSON(mod);
+    layersRec := DATASET(1, TRANSFORM(GNN_Model, SELF.model_JSON := json, 
+      SELF.wi := 0, DISTRIBUTED));
+    weights := GetWeights(mod);
+    modWeights := PROJECT(weights, TRANSFORM(GNN_Model, SELF := LEFT));
+    fullModel := layersRec + modWeights;
+    RETURN fullModel;
+  END;
+
+  EXPORT UNSIGNED4 setModel(DATASET(GNN_Model) fullModel) := FUNCTION
+    layerJSON := fullModel(wi = 0)[1].model_JSON;
+    trainedWeights := PROJECT(fullModel(wi > 0), TRANSFORM(t_Tensor));
+    modId := GNNI.toJSON(layerJSON);
+    RETURN GNNI.setWeights(modId, trainedWeights);
+  END;
 END; // GNNI
