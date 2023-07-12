@@ -140,9 +140,9 @@ EXPORT GNNI := MODULE
      STRING model_JSON := '';
   END;
 
-  EXPORT GNN_Model getModel() := FUNCTION
-    
-  END;
+  // EXPORT GNN_Model getModel() := FUNCTION
+
+  // END;
   
   /**
     * Generate a sequential token.  By making this a python function,
