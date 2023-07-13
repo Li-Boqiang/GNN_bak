@@ -881,4 +881,8 @@ EXPORT GNNI := MODULE
     result := results[1].text;
     RETURN result;
   END;
+
+  EXPORT BOOLEAN isGPUAvailable() := FUNCTION
+    RETURN FALSE;
+  END;
 END; // GNNI
