@@ -831,7 +831,16 @@ EXPORT Keras := MODULE
     except:
       # Failed.  Forat an exception and send it.
       return [(nodeId, 1, 4, format_exc('getSummary'))]
-  
+  ENDEMBED;
+
+  EXPORT BOOLEAN isGPUAvailable() := 
+            EMBED(Python: globalscope(globalScope), persist('query'), activity)
+    try:
+      import tensorflow as tf # V2.x
+    except:
+      assert 1 == 0, 'tensorflow not found'
+    return tf.test.is_gpu_available()
+  ENDEMBED;
 
   EXPORT STREAMED DATASET(kString) Shutdown(
               STREAMED DATASET(kString) temp,
