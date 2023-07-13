@@ -51,10 +51,13 @@ EXPORT Keras := MODULE
       import os
       #this "CUDA VISIBLE DEVICES" will set which GPU a given Thor node will have access to
       #without this, each single Thor node will try and allocate memory on all GPUs, which will make it crash
+      global cudaVisibleDevices
       if gpusperserver > 0:
         numServers = nNodes / gpusperserver
         os.environ["CUDA_VISIBLE_DEVICES"]=str(math.floor(int(nodeId)/numServers))
+        # cudaVisibleDevices = str(math.floor(int(nodeId)/numServers))
       else:
+        # cudaVisibleDevices = "-1"
         os.environ["CUDA_VISIBLE_DEVICES"]="-1"
       try:
         import tensorflow as tf # V2.x
