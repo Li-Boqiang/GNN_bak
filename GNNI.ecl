@@ -882,7 +882,7 @@ EXPORT GNNI := MODULE
     RETURN result;
   END;
 
-  EXPORT STRING isGPUAvailable() := FUNCTION
+  EXPORT BOOLEAN isGPUAvailable() := FUNCTION
     RETURN Keras.isGPUAvailable();
   END;
 END; // GNNI
