@@ -44,6 +44,15 @@ EXPORT Keras := MODULE
     # Function to initialize all the global variables and functions.  This should
     # only be called once.
     def initGlobals():
+      # Assign GPUs to Thor nodes if needed.
+      import os
+      #this "CUDA VISIBLE DEVICES" will set which GPU a given Thor node will have access to
+      #without this, each single Thor node will try and allocate memory on all GPUs, which will make it crash
+      if gpusperserver > 0:
+        numServers = nNodes / gpusperserver
+        os.environ["CUDA_VISIBLE_DEVICES"]=str(math.floor(int(nodeId)/numServers))
+      else:
+        os.environ["CUDA_VISIBLE_DEVICES"]="-1"
       try:
         import tensorflow as tf # V2.x
       except:
@@ -95,16 +104,7 @@ EXPORT Keras := MODULE
           return func + ': ' + exc[:200] + ' ... ' + exc[-200:]
       format_exc = _format_exc
 
-      # Assign GPUs to Thor nodes if needed.
-      import os
-      #this "CUDA VISIBLE DEVICES" will set which GPU a given Thor node will have access to
-      #without this, each single Thor node will try and allocate memory on all GPUs, which will make it crash
-      if gpusperserver > 0:
-        numServers = nNodes / gpusperserver
-        os.environ["CUDA_VISIBLE_DEVICES"]=str(math.floor(int(nodeId)/numServers))
-      else:
-        os.environ["CUDA_VISIBLE_DEVICES"]="-1"
-        assert 1 == 0, 'NO CUDA'
+
       tf.keras.backend.clear_session()
 
       # Convert an ECL Tensor dataset into a single numpy ndarray.
