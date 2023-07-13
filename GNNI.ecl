@@ -864,4 +864,17 @@ EXPORT GNNI := MODULE
     RETURN setWeights(modId, trainedWeights);
   END;
 
+  /**
+    * Return a JSON representation of the Keras model.
+    *
+    * @param mod The model token as previously returned
+    *         from DefineModel(...) above.
+    * @return A JSON string representing the model definition.
+    */
+  EXPORT STRING getSummary(UNSIGNED4 mod) := FUNCTION
+    kModelId := mod DIV kerasIdFactor;
+    results := Keras.getSummary(DATASET([], kString), mod, kModelId);
+    result := results[1].text;
+    RETURN result;
+  END;
 END; // GNNI

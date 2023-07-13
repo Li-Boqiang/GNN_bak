@@ -919,7 +919,25 @@ EXPORT Keras := MODULE
       # We had an error.  Format the exception and return it in the kString
       return [(nodeId, 1, kStrTypeDict['status'], format_exc('DefineKAMod'))]
   ENDEMBED; // DefineKAModel
-
+  /**
+    * Return a JSON string representing the layers of the model.  Does not return any
+    * compile information or trained weights.
+    */
+  EXPORT STREAMED DATASET(kString) getSummary(STREAMED DATASET(kString) dummy, UNSIGNED4 seqId,
+                  UNSIGNED modelid = 0) :=
+              EMBED(Python: globalscope(globalScope), persist('query'), activity)
+    try:
+      # Restore the keras / tensorflow context for this model.
+      mod = modcache[modelid]
+      stringlist = []
+      mod.summary(print_fn=lambda x: stringlist.append(x))
+      short_model_summary = "\n".join(stringlist)
+      # Succeeded.  Return a blank status.
+      return [(nodeId, 1, kStrTypeDict['status'], short_model_summary)]
+    except:
+      # Failed.  Forat an exception and send it.
+      return [(nodeId, 1, 4, format_exc('getSummary'))]
+  ENDEMBED;
 
   EXPORT STREAMED DATASET(kString) Shutdown(
               STREAMED DATASET(kString) temp,
