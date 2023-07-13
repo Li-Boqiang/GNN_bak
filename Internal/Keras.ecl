@@ -44,6 +44,9 @@ EXPORT Keras := MODULE
     # Function to initialize all the global variables and functions.  This should
     # only be called once.
     def initGlobals():
+      import numpy as np
+      import math
+      global nodeId, nNodes, maxSliceLen
       # Assign GPUs to Thor nodes if needed.
       import os
       #this "CUDA VISIBLE DEVICES" will set which GPU a given Thor node will have access to
@@ -58,9 +61,7 @@ EXPORT Keras := MODULE
       except:
         assert 1 == 0, 'tensorflow not found'
       from tensorflow.keras import layers
-      import numpy as np
-      import math
-      global nodeId, nNodes, maxSliceLen
+      
       # Initialize global variables
       #   Extract the initialization parameters from initdata
       for rec in initdata:
