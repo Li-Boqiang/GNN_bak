@@ -25,11 +25,11 @@ RAND_MAX := POWER(2,32) -1;
 // INTEGER seed := 12345;
 // RANDOMIZE(seed);
 // Test parameters
-trainCount := 1000;
+trainCount := 10000;
 testCount := 100;
 featureCount := 5;
 classCount := 3;
-numEpochs := 40;
+numEpochs := 10;
 batchSize := 128;
 
 
@@ -47,8 +47,8 @@ ldef := ['''layers.Dense(16, activation='tanh', input_shape=(5,))''',
           '''layers.Dense(16, activation='relu')''',
           '''layers.Dense(3, activation='softmax')'''];
 
-compileDef := '''compile(optimizer=tf.keras.optimizers.SGD(.05),
-              loss=tf.keras.losses.categorical_crossentropy,
+compileDef := '''compile(optimizer=tf.keras.optimizers.experimental.SGD(learning_rate=0.05),
+              loss=tf.keras.losses.CategoricalCrossentropy(),
               metrics=['accuracy'])
               ''';
 
@@ -155,8 +155,21 @@ OUTPUT(mod, NAMED('mod'));
 
 mod3 := GNNI.FitNF(mod, trainX, trainY, batchSize := batchSize, numEpochs := numEpochs);
 
-SEQUENTIAL([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')), OUTPUT(mod3, NAMED('mod3')), 
-  OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end'))]);
+// ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')), 
+//   OUTPUT(GNNI.FitNF(mod, trainX, trainY, batchSize := batchSize, numEpochs := numEpochs), NAMED('mod3')),
+//   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end'))]);
+
+losses := GNNI.GetLoss(mod3);
+metrics := GNNI.EvaluateNF(mod3, testX, testY);
+preds := GNNI.PredictNF(mod3, testX);
+
+ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')), 
+  OUTPUT(mod3, NAMED('mod3')),
+  OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end')),
+  OUTPUT(losses, NAMED('losses')),
+  OUTPUT(metrics, NAMED('metrics')),
+  OUTPUT(testY, ALL, NAMED('testDat')),
+  OUTPUT(preds, NAMED('predictions'))]);
 
 // EndTime:= STD.Date.CurrentTime(TRUE); //Local Time
 // OUTPUT(EndTime, NAMED('EndTime'));
@@ -164,15 +177,14 @@ SEQUENTIAL([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')), OUTPUT(mod3, NAM
 
 // OUTPUT(mod3, NAMED('mod3'));
 
-losses := GNNI.GetLoss(mod3);
-OUTPUT(losses, NAMED('losses'));
+// losses := GNNI.GetLoss(mod3);
+// OUTPUT(losses, NAMED('losses'));
 
-metrics := GNNI.EvaluateNF(mod3, testX, testY);
+// metrics := GNNI.EvaluateNF(mod3, testX, testY);
 
-OUTPUT(metrics, NAMED('metrics'));
+// OUTPUT(metrics, NAMED('metrics'));
 
-preds := GNNI.PredictNF(mod3, testX);
+// preds := GNNI.PredictNF(mod3, testX);
 
-
-OUTPUT(testY, ALL, NAMED('testDat'));
-OUTPUT(preds, NAMED('predictions'));
+// OUTPUT(testY, ALL, NAMED('testDat'));
+// OUTPUT(preds, NAMED('predictions'));
