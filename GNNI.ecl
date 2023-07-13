@@ -273,11 +273,15 @@ EXPORT GNNI := MODULE
     *         from DefineModel(...) above.
     * @return A JSON string representing the model definition.
     */
-  EXPORT STRING ToJSON(UNSIGNED4 mod) := FUNCTION
+  SHARED STRING ToJSON_(UNSIGNED4 mod) := FUNCTION
     kModelId := mod DIV kerasIdFactor;
     results := Keras.ToJSON(DATASET([], kString), mod, kModelId);
     result := results[1].text;
     RETURN result;
+  END;
+
+  EXPORT STRING ToJSON(UNSIGNED4 mod) := FUNCTION
+    RETURN ToJSON_(mod);
   END;
 
   /**

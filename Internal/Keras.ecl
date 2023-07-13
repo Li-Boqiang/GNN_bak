@@ -544,116 +544,7 @@ EXPORT Keras := MODULE
     except:
       assert 1 == 0, 'tensorflow not found'
     import numpy as np
-    #import os
-    #os.environ["CUDA_VISIBLE_DEVICES"]="-1"
     global currEpoch, batchCount, cumLoss
-    
-
-    # Boqiang Debug
-
-    # Accumulate the loss for each epoch.
-    if epoch != currEpoch.get(modelid, 0):
-      batchCount[modelid] = 0
-      cumLoss[modelid] = 0.0
-      currEpoch[modelid] = epoch
-    # Process this batch.
-    batchCount[modelid] += 1
-    wA_changes = []
-    # Restore Keras / TF context
-    mod = modcache[modelid]
-    # Convert the incoming weights to a list of numpy arrays
-    wA = Tens2NpList(weights)
-    # Convert the X tensor to a numpy array
-    xAL = Tens2NpList(x, recordOriented = True)
-    # Convert the Y tensor to a numpy array
-    yAL = Tens2NpList(y, recordOriented = True)
-    validxy = True
-    if xAL and yAL and xAL[0].size > 0 and yAL[0].size > 0:
-      # We've got some data
-      # Do some error checking.
-      for i in range(len(xAL)):
-        xA = xAL[i]
-        yA = yAL[i]
-        if xA.size == 0 or yA.size == 0 or xA.shape[0] != yA.shape[0]:
-          assert 1 == 0, 'Fit: X and Y sizes do not match or are zero: xShape = ' + str(xA.shape) + ', yShape = ' + str(yA.shape)
-        if xA.shape[0] == 0:
-          # At least one Tensor has zero length
-          validxy = False
-    else:
-      # No valid x or y data
-      validxy = False
-    
-    if validxy:
-      # Received valid data
-      # Restore the keras / tensorflow context for this model.
-      # Set the starting weights
-      mod.set_weights(wA)
-      # Run one batch to fit the model
-      if len(xAL) == 1:
-        tfHistory = mod.fit(xAL[0], yAL[0], epochs=epoch, batch_size=kbatchsize, initial_epoch=epoch-1, shuffle=False)
-      else:
-        tfHistory = mod.fit(xAL, yAL, epochs=epoch, batch_size=kbatchsize, initial_epoch=epoch-1, shuffle=False)
-      # Update the cumulative (epoch) loss
-      currLoss = tfHistory.history['loss'][-1]
-      cumLoss[modelid] += currLoss
-      # Get the new weights from Keras model.
-      wA_out = mod.get_weights()
-      # For each layer, subtract the new weights from the starting weights to compute
-      # the weight updates.  Scale the changes by the learningRate (lr) so that we can
-      # control the lr as a fraction of the learing rate used within the optimizer from compileMod.
-      for i in range(len(wA)):
-        wA_changes.append((wA_out[i] - wA[i]) * lr)
-    else:
-      # No valid X / Y data received. Send null changes
-      for i in range(len(wA)):
-        wA_changes.append(np.zeros_like(wA[i]))
-    # Return the weight changes as a Tensor List.
-    return NpList2Tens(wA_changes, isWeights = True)
-    # Boqiang Debug
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     try:
       # Accumulate the loss for each epoch.
       if epoch != currEpoch.get(modelid, 0):
@@ -692,7 +583,10 @@ EXPORT Keras := MODULE
         # Set the starting weights
         mod.set_weights(wA)
         # Run one batch to fit the model
-        tfHistory = mod.fit(xAL, yAL, epochs=epoch, batch_size=kbatchsize, initial_epoch=epoch-1, shuffle=False)
+        if len(xAL) == 1:
+          tfHistory = mod.fit(xAL[0], yAL[0], epochs=epoch, batch_size=kbatchsize, initial_epoch=epoch-1, shuffle=False)
+        else:
+          tfHistory = mod.fit(xAL, yAL, epochs=epoch, batch_size=kbatchsize, initial_epoch=epoch-1, shuffle=False)
         # Update the cumulative (epoch) loss
         currLoss = tfHistory.history['loss'][-1]
         cumLoss[modelid] += currLoss
@@ -920,7 +814,7 @@ EXPORT Keras := MODULE
       return [(nodeId, 1, kStrTypeDict['status'], format_exc('DefineKAMod'))]
   ENDEMBED; // DefineKAModel
   /**
-    * Return a JSON string representing the layers of the model.  Does not return any
+    * Return a string representing the summary of the model.  Does not return any
     * compile information or trained weights.
     */
   EXPORT STREAMED DATASET(kString) getSummary(STREAMED DATASET(kString) dummy, UNSIGNED4 seqId,
