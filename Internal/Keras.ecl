@@ -104,6 +104,7 @@ EXPORT Keras := MODULE
         os.environ["CUDA_VISIBLE_DEVICES"]=str(math.floor(int(nodeId)/numServers))
       else:
         os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+        assert 1 == 0, 'NO CUDA'
       tf.keras.backend.clear_session()
 
       # Convert an ECL Tensor dataset into a single numpy ndarray.
