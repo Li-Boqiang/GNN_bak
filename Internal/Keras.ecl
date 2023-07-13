@@ -833,7 +833,7 @@ EXPORT Keras := MODULE
       return [(nodeId, 1, 4, format_exc('getSummary'))]
   ENDEMBED;
 
-  EXPORT BOOLEAN isGPUAvailable() := EMBED(Python)
+  EXPORT BOOLEAN isGPUAvailable() := EMBED(Python: globalscope(globalScope), persist('query'))
     try:
       import tensorflow as tf # V2.x
     except:

@@ -33,8 +33,13 @@ mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
 OUTPUT(mdef1, NAMED('mdef_test'));                                             
 OUTPUT(compileDef, NAMED('compileDef'));   
 
-s := GNNI.GetSession(1);
-OUTPUT(s, NAMED('s'));
+s := GNNI.GetSession(0);
+GPU := GNNI.isGPUAvailable();
+SEQUENTIAL(OUTPUT(s, NAMED('s')),
+           OUTPUT(GPU, NAMED('isGPUAvailable')));
+// OUTPUT(s, NAMED('s'));
+
+// OUTPUT(GPU, NAMED('isGPUAvailable'));
 
 mod := GNNI.DefineModel(s, ldef, compileDef);
 
