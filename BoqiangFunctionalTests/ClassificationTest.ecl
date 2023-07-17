@@ -13,7 +13,7 @@ IMPORT GNN.GNNI;
 IMPORT GNN.Internal AS Int;
 IMPORT ML_Core AS mlc;
 IMPORT STD;
-// IMPORT STD;
+
 kString := iTypes.kString;
 kStrType := iTypes.kStrType;
 NumericField := mlc.Types.NumericField;
@@ -163,25 +163,25 @@ losses := GNNI.GetLoss(mod3);
 metrics := GNNI.EvaluateNF(mod3, testX, testY);
 preds := GNNI.PredictNF(mod3, testX);
 
-ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')), 
-  OUTPUT(mod3, NAMED('mod3')),
-  OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end')),
-  OUTPUT(losses, NAMED('losses')),
-  OUTPUT(metrics, NAMED('metrics')),
-  OUTPUT(testY, ALL, NAMED('testDat')),
-  OUTPUT(preds, NAMED('predictions'))]);
-
-// ORDERED(
-//   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')),
+// ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')), 
 //   OUTPUT(mod3, NAMED('mod3')),
 //   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end')),
-//   PARALLEL(
-//            OUTPUT(losses, NAMED('losses')),
-//            OUTPUT(metrics, NAMED('metrics')),
-//            OUTPUT(testY, ALL, NAMED('testDat')),
-//            OUTPUT(preds, NAMED('predictions'))
-//            )
-//         );
+//   OUTPUT(losses, NAMED('losses')),
+//   OUTPUT(metrics, NAMED('metrics')),
+//   OUTPUT(testY, ALL, NAMED('testDat')),
+//   OUTPUT(preds, NAMED('predictions'))]);
+
+ORDERED(
+  OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')),
+  OUTPUT(mod3, NAMED('mod3')),
+  OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end')),
+  PARALLEL(
+           OUTPUT(losses, NAMED('losses')),
+           OUTPUT(metrics, NAMED('metrics')),
+           OUTPUT(testY, ALL, NAMED('testDat')),
+           OUTPUT(preds, NAMED('predictions'))
+           )
+        );
 
 // EndTime:= STD.Date.CurrentTime(TRUE); //Local Time
 // OUTPUT(EndTime, NAMED('EndTime'));

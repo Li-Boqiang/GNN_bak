@@ -144,6 +144,5 @@ OUTPUT(metrics, NAMED('metrics'));
 
 preds := GNNI.PredictNF(mod3, testX);
 
-
 OUTPUT(testY, ALL, NAMED('testDat'));
 OUTPUT(preds, NAMED('predictions'));

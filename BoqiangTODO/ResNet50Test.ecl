@@ -18,8 +18,10 @@ imageRecord := RECORD
        //first 4 bytes contain the length of the image data
   UNSIGNED8  RecPos{virtual(fileposition)};
 END;
-imageData := DATASET('~le::imagedb',imageRecord,FLAT);
-OUTPUT(imageData, NAMED('imageData'));
+
+imageData := DATASET('~te::ele',imageRecord,FLAT);
+OUTPUT(imageData, NAMED('elephant'));
+
 
 
 // mnist_data_type := RECORD

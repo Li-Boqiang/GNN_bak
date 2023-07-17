@@ -23,32 +23,55 @@ t_Tensor := Tensor.R4.t_Tensor;
 // STRING fname := 'VGG19';        // dataset too large to output to workunit, but output weights[1] works normally
 
 s := GNNI.GetSession(1);
-
+mdef := 'weights="imagenet"';
 
 STRING mod_name1 := 'Xception';
-mdef1 := 'weights="imagenet"';
-mod1 := GNNI.DefineKAModel(s, mod_name1, mdef1);
+mod1 := GNNI.DefineKAModel(s, mod_name1, mdef);
 OUTPUT(GNNI.getSummary(mod1), NAMED('Xception'));
 
 STRING mod_name2 := 'VGG16';
-mdef2 := 'weights="imagenet"';
-mod2 := GNNI.DefineKAModel(s, mod_name2, mdef2);
+mod2 := GNNI.DefineKAModel(s, mod_name2, mdef);
 OUTPUT(GNNI.getSummary(mod2), NAMED('VGG16'));
 
 STRING mod_name3 := 'VGG19';
-mdef3 := 'weights="imagenet"';
-mod3 := GNNI.DefineKAModel(s, mod_name3, mdef3);
+mod3 := GNNI.DefineKAModel(s, mod_name3, mdef);
 OUTPUT(GNNI.getSummary(mod3), NAMED('VGG19'));
 
 STRING mod_name4 := 'ResNet50';
-mdef4 := 'weights="imagenet"';
-mod4 := GNNI.DefineKAModel(s, mod_name4, mdef4);
+mod4 := GNNI.DefineKAModel(s, mod_name4, mdef);
 OUTPUT(GNNI.getSummary(mod4), NAMED('ResNet50'));
 
-STRING mod_name5 := 'ResNet50V2';
-mdef5 := 'weights="imagenet"';
-mod5 := GNNI.DefineKAModel(s, mod_name5, mdef5);
-OUTPUT(GNNI.getSummary(mod5), NAMED('ResNet50V2'));
+STRING mod_name5 := 'ResNet101';
+mod5 := GNNI.DefineKAModel(s, mod_name5, mdef);
+OUTPUT(GNNI.getSummary(mod5), NAMED('ResNet101'));
+
+STRING mod_name6 := 'ResNet101V2';
+mod6 := GNNI.DefineKAModel(s, mod_name6, mdef);
+OUTPUT(GNNI.getSummary(mod6), NAMED('ResNet101V2'));
+
+STRING mod_name7 := 'ResNet152';
+mod7 := GNNI.DefineKAModel(s, mod_name7, mdef);
+OUTPUT(GNNI.getSummary(mod7), NAMED('ResNet152'));
+
+STRING mod_name8 := 'ResNet152V2';
+mod8 := GNNI.DefineKAModel(s, mod_name8, mdef);
+OUTPUT(GNNI.getSummary(mod8), NAMED('ResNet152V2'));
+
+STRING mod_name9 := 'InceptionV3';
+mod9 := GNNI.DefineKAModel(s, mod_name9, mdef);
+OUTPUT(GNNI.getSummary(mod9), NAMED('InceptionV3'));
+
+// STRING mod_name5 := 'InceptionResNetV2';
+// mod5 := GNNI.DefineKAModel(s, mod_name5, mdef);
+// OUTPUT(GNNI.getSummary(mod5), NAMED('ResNet50V2'));
+
+// STRING mod_name5 := 'MobileNet';
+// mod5 := GNNI.DefineKAModel(s, mod_name5, mdef);
+// OUTPUT(GNNI.getSummary(mod5), NAMED('ResNet50V2'));
+
+// STRING mod_name5 := 'MobileNetV2';
+// mod5 := GNNI.DefineKAModel(s, mod_name5, mdef);
+// OUTPUT(GNNI.getSummary(mod5), NAMED('ResNet50V2'));
 
 
 

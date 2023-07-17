@@ -6,7 +6,7 @@ IMPORT $ AS GNN;
 IMPORT GNN.Internal as int;
 IMPORT GNN.Types;
 IMPORT GNN.Internal.Types AS iTypes;
-IMPORT GNN.Internal.Keras;
+IMPORT GNN.Internal.Keras_tf1;
 IMPORT GNN.Tensor;
 IMPORT Std.System.Thorlib;
 IMPORT Std.System.Log AS Syslog;
@@ -135,7 +135,7 @@ FuncLayerDef := GNN.Types.FuncLayerDef;
   *      too large.</li></ul>
   *
   */
-EXPORT GNNI := MODULE
+EXPORT GNNI_tf1 := MODULE
   /**
     * Generate a sequential token.  By making this a python function,
     * we prevent the compiler from pre-determining the result, potentially

@@ -28,7 +28,7 @@ node := Thorlib.node();
   * the function.  This is used to control the order of execution of ECL statements
   * that call these functions.
   */
-EXPORT Keras := MODULE
+EXPORT Keras_tf1 := MODULE
   SHARED globalScope := 'keras_' + node + '.ecl';
   /**
     * Initialize the Keras / Tensorflow environment and the global space.
