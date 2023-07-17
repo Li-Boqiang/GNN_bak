@@ -62,21 +62,21 @@ x2 := PROJECT(x1, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.value := LEFT
 y2 := PROJECT(y1, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
 
 
-x3 := PROJECT(x2, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/784) + 1, TRUNCATE(LEFT.id%784/28) + 1, LEFT.id%28 + 1], SELF.value := LEFT.value));
+x3 := PROJECT(x2, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/784) + 1, TRUNCATE(LEFT.id%784/28) + 1, LEFT.id%28 + 1, 1], SELF.value := LEFT.value));
 y3 := PROJECT(y2, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/10) + 1, LEFT.id%10 + 1], SELF.value := LEFT.value));
 
 
-x := Tensor.R4.MakeTensor([0,28,28], x3);
+x := Tensor.R4.MakeTensor([0, 28, 28, 1], x3);
 y := Tensor.R4.MakeTensor([0, 10], y3);
 
 // Define model
 ldef := ['''layers.Conv2D(32, (5,5), padding='same', activation='relu', input_shape=(28, 28, 1))''',
           '''layers.Conv2D(32, (5,5), padding='same', activation='relu')''',
-          '''layers.MaxPool2D()''',
+          '''tf.keras.layers.MaxPooling2D(pool_size=(2, 2))''',
           '''layers.Dropout(0.25)''',
           '''layers.Conv2D(64, (3,3), padding='same', activation='relu')''',
           '''layers.Conv2D(64, (3,3), padding='same', activation='relu')''',
-          '''layers.MaxPool2D(strides=(2,2))''',
+          '''tf.keras.layers.MaxPooling2D(pool_size=(2, 2))''',
           '''layers.Dropout(0.25)''',
           '''layers.Flatten()''',
           '''layers.Dense(128, activation='relu')''',
@@ -84,7 +84,7 @@ ldef := ['''layers.Conv2D(32, (5,5), padding='same', activation='relu', input_sh
           '''layers.Dense(10, activation='softmax')'''];
 
 compileDef := '''compile(optimizer=tf.keras.optimizers.RMSprop(epsilon=1e-08), 
-                loss='categorical_crossentropy', metrics=['acc'])
+                loss='categorical_crossentropy', metrics=['accuracy'])
               ''';
 
 mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
@@ -131,11 +131,11 @@ x2_test := PROJECT(x1_test, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.val
 y2_test := PROJECT(y1_test, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
 
 
-x3_test := PROJECT(x2_test, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/784) + 1, TRUNCATE(LEFT.id%784/28) + 1, LEFT.id%28 + 1], SELF.value := LEFT.value));
+x3_test := PROJECT(x2_test, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/784) + 1, TRUNCATE(LEFT.id%784/28) + 1, LEFT.id%28 + 1,1], SELF.value := LEFT.value));
 y3_test := PROJECT(y2_test, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/10) + 1, LEFT.id%10 + 1], SELF.value := LEFT.value));
 
 
-x_test := Tensor.R4.MakeTensor([0,28,28], x3_test);
+x_test := Tensor.R4.MakeTensor([0,28,28,1], x3_test);
 y_test := Tensor.R4.MakeTensor([0, 10], y3_test);
 
 metrics := GNNI_tf1.EvaluateMod(mod2, x_test, y_test);
@@ -160,22 +160,20 @@ Tensorflow version = 2.12 using tf1
 Use GPU
 
 1. Test 1
-Start Time = 
-End Time   = 
-Losses     = 
+Start Time = 65411
+End Time   = 65910
+Losses     = 0.070420804973459
 Metrics    = 
-  Loss     = 	
-  Acc      = 	
+  Loss     = 0.04930917173624039
+  Acc      = 0.9891999959945679
 
 
 2. Test 2
-Start Time = 
-End Time   = 
-Losses     = 
+Start Time = 70024
+End Time   = 70511
+Losses     = 0.0730485112960018
 Metrics    = 
-  Loss     = 	
-  Acc      = 	
-
-
+  Loss     = 0.03799603879451752	
+  Acc      = 0.9894999861717224	
 
 */

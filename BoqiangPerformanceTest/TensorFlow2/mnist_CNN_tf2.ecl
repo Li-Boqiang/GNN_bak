@@ -170,8 +170,8 @@ Start Time = 61105
 End Time   = 61533
 Losses     = 0.0651004514656961
 Metrics    = 
-  Loss     = 	0.03297407925128937
-  Acc      = 	0.9896000027656555
+  Loss     = 0.03297407925128937
+  Acc      = 0.9896000027656555
 
 
 2. Test 2
@@ -179,7 +179,27 @@ Start Time = 62452
 End Time   = 62935
 Losses     = 0.05718078305168698
 Metrics    = 
-  Loss     = 	0.04754113778471947
-  Acc      = 	0.9886999726295471
+  Loss     = 0.04754113778471947
+  Acc      = 0.9886999726295471
 
+
+3. Test 3
+GPU        = unavailable
+# node     = 1
+Start Time = 72030
+End Time   = 72738
+Losses     = 0.05964114850697418
+Metrics    = 
+  Loss     = 0.03408002480864525
+  Acc      = 0.9901000261306763
+
+4. Test 4
+GPU        = unavailable
+# node     = 1
+Start Time = 72855
+End Time   = 73545
+Losses     = 0.06493064113116513
+Metrics    = 
+  Loss     = 0.0379653237760067
+  Acc      = 0.9911999702453613
 */
