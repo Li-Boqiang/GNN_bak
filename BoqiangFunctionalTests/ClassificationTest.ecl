@@ -171,6 +171,18 @@ ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')),
   OUTPUT(testY, ALL, NAMED('testDat')),
   OUTPUT(preds, NAMED('predictions'))]);
 
+// ORDERED(
+//   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')),
+//   OUTPUT(mod3, NAMED('mod3')),
+//   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end')),
+//   PARALLEL(
+//            OUTPUT(losses, NAMED('losses')),
+//            OUTPUT(metrics, NAMED('metrics')),
+//            OUTPUT(testY, ALL, NAMED('testDat')),
+//            OUTPUT(preds, NAMED('predictions'))
+//            )
+//         );
+
 // EndTime:= STD.Date.CurrentTime(TRUE); //Local Time
 // OUTPUT(EndTime, NAMED('EndTime'));
 
