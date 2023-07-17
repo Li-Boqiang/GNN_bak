@@ -15,15 +15,15 @@ t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
 
 // Test parameters
-trainCount := 10000;
-testCount := 1000;
-featureCount := 5;
-batchSize := 1024;
-numEpochs := 10;
+batchSize := 5000;
+numEpochs := 5;
 trainToLoss := .0001;
 bsr := .25; // BatchSizeReduction.  1 = no reduction.  .25 = reduction to 25% of original.
 lrr := 1.0;  // Learning Rate Reduction.  1 = no reduction.  .1 = reduction to 10 percent of original.
 
+// Test GPU
+GPU := GNNI.isGPUAvailable();
+OUTPUT(GPU, NAMED('isGPUAvailable'));
 
 // Get training data
 SET OF REAL4 get_train_X() := EMBED(Python)
@@ -125,18 +125,22 @@ SET OF REAL4 get_test_Y() := EMBED(Python)
   return y_one_hot.flatten().tolist()
 ENDEMBED;
 
-x1_test := DATASET(train_X, t1Rec);
-y1_test := DATASET(train_Y, t1Rec);
-x2_test := PROJECT(x1, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
-y2_test := PROJECT(y1, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
+test_X := get_test_X();
+test_Y := get_test_Y();
 
 
-x3_test := PROJECT(x2, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/784) + 1, TRUNCATE(LEFT.id%784/28) + 1, LEFT.id%28 + 1], SELF.value := LEFT.value));
-y3_test := PROJECT(y2, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/10) + 1, LEFT.id%10 + 1], SELF.value := LEFT.value));
+x1_test := DATASET(test_X, t1Rec);
+y1_test := DATASET(test_Y, t1Rec);
+x2_test := PROJECT(x1_test, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
+y2_test := PROJECT(y1_test, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
 
 
-x_test := Tensor.R4.MakeTensor([0,28,28], x3);
-y_test := Tensor.R4.MakeTensor([0, 10], y3);
+x3_test := PROJECT(x2_test, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/784) + 1, TRUNCATE(LEFT.id%784/28) + 1, LEFT.id%28 + 1], SELF.value := LEFT.value));
+y3_test := PROJECT(y2_test, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/10) + 1, LEFT.id%10 + 1], SELF.value := LEFT.value));
+
+
+x_test := Tensor.R4.MakeTensor([0,28,28], x3_test);
+y_test := Tensor.R4.MakeTensor([0, 10], y3_test);
 
 metrics := GNNI.EvaluateMod(mod2, x_test, y_test);
 preds := GNNI.Predict(mod2, x_test);
@@ -148,3 +152,34 @@ ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('startTime')),
   OUTPUT(losses, NAMED('losses')),
   OUTPUT(metrics, NAMED('metrics')),
   OUTPUT(preds, NAMED('preds'))]);
+
+
+
+/*
+Test results
+Environments:
+Number of nodes: 1
+CPU: Intel Core i7 13700K
+GPU: NVIDIA GeForce RTX 4090
+Memory: 64GB
+Tensorflow version = 2.12
+Use GPU
+
+1. Test 1
+Start Time = 61105
+End Time   = 61533
+Losses     = 0.0651004514656961
+Metrics    = 
+  Loss     = 	0.03297407925128937
+  Acc      = 	0.9896000027656555
+
+
+2. Test 2
+Start Time = 62452
+End Time   = 62935
+Losses     = 0.05718078305168698
+Metrics    = 
+  Loss     = 	0.04754113778471947
+  Acc      = 	0.9886999726295471
+
+*/

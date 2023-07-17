@@ -175,7 +175,7 @@ EXPORT GNNI_tf1 := MODULE
                                       SELF.nodeId := nodeId,
                                       SELF.nNodes := nNodes,
                                       SELF.maxSliceSize := Tensor.MAX_SLICE), LOCAL);
-    kstatus := ASSERT(Keras.Init(initDat, GPUsPerServer), LENGTH(text) = 0, 'GetSession Exception: ' + text, FAIL);
+    kstatus := ASSERT(Keras_tf1.Init(initDat, GPUsPerServer), LENGTH(text) = 0, 'GetSession Exception: ' + text, FAIL);
     status := reduceResults(kstatus);
     model := IF(LENGTH(status) = 0, getToken(0), 0);
     RETURN model;
@@ -204,7 +204,7 @@ EXPORT GNNI_tf1 := MODULE
     mdef := IF(LENGTH(cdef) > 0, mdef1 + mdef2, mdef1);
     mdefRepl0 := SORT(DISTRIBUTE(mdef, ALL), id, LOCAL);
     mdefRepl := PROJECT(NOCOMBINE(mdefRepl0), TRANSFORM(RECORDOF(LEFT), SELF.nodeId := nodeId, SELF := LEFT), LOCAL);
-    kstatus := ASSERT(Keras.DefineModel(mdefRepl, sess), LENGTH(text) = 0, 'DefineModel Exception: ' + text);
+    kstatus := ASSERT(Keras_tf1.DefineModel(mdefRepl, sess), LENGTH(text) = 0, 'DefineModel Exception: ' + text);
     status := reduceResults(kstatus);
     // Extract the Keras modelId from the id field of the returned status.  Each node should have the
     // same model id since they are kept in sync.  So we just use the one from our own node.
@@ -248,7 +248,7 @@ EXPORT GNNI_tf1 := MODULE
                                    STRING cdef = '') := FUNCTION
     // Distribute the lDefs to all nodes to make sure that the model is defined on each node
     lDefsRepl := DISTRIBUTE(lDefs, ALL);
-    kstatus := ASSERT(Keras.DefineFuncModel(lDefsRepl, sess, inputs, outputs, cdef), LENGTH(text) = 0, 'DefineFuncModel Exception: ' + text);
+    kstatus := ASSERT(Keras_tf1.DefineFuncModel(lDefsRepl, sess, inputs, outputs, cdef), LENGTH(text) = 0, 'DefineFuncModel Exception: ' + text);
     status := reduceResults(kstatus);
     // Extract the Keras modelId from the id field of the returned status.  Each node should have the
     // same model id since they are kept in sync.  So we just use the one from our own node.
@@ -270,7 +270,7 @@ EXPORT GNNI_tf1 := MODULE
     */
   EXPORT STRING ToJSON(UNSIGNED4 mod) := FUNCTION
     kModelId := mod DIV kerasIdFactor;
-    results := Keras.ToJSON(DATASET([], kString), mod, kModelId);
+    results := Keras_tf1.ToJSON(DATASET([], kString), mod, kModelId);
     result := results[1].text;
     RETURN result;
   END;
@@ -292,7 +292,7 @@ EXPORT GNNI_tf1 := MODULE
                                     SELF.id :=1,
                                     SELF.typ := kStrType.json,
                                     SELF.text := json), LOCAL);
-    kstatus := ASSERT(Keras.FromJSON(mdefRepl, sess), LENGTH(text) = 0, 'FromJSON Exception: ' + text, FAIL);
+    kstatus := ASSERT(Keras_tf1.FromJSON(mdefRepl, sess), LENGTH(text) = 0, 'FromJSON Exception: ' + text, FAIL);
     status := reduceResults(kstatus);
     // Extract the Keras modelId from the id field of the returned status.  Each node should have the
     // same model id since they are kept in sync.  So we just use the one from our own node.
@@ -341,7 +341,7 @@ EXPORT GNNI_tf1 := MODULE
                                     SELF.typ := kStrType.compile,
                                     SELF.text := compileStr), LOCAL);
     kModelId := model DIV kerasIdFactor;
-    kstatus := ASSERT(Keras.CompileMod(mdefRepl, model, kModelId), LENGTH(text) = 0, 'CompileMod Exception: ' + text, FAIL);
+    kstatus := ASSERT(Keras_tf1.CompileMod(mdefRepl, model, kModelId), LENGTH(text) = 0, 'CompileMod Exception: ' + text, FAIL);
     status := reduceResults(kstatus);
     RETURN getToken(model);
   END;
@@ -369,7 +369,7 @@ EXPORT GNNI_tf1 := MODULE
     // synchronized between nodes.
     kModelId := model DIV kerasIdFactor;
     dummy := DATASET(1, TRANSFORM(kString, SELF.id := 1, SELF.typ := kStrType.None, SELF.text := ''), LOCAL);
-    weights := Keras.GetWeights(dummy, model, kModelId);
+    weights := Keras_tf1.GetWeights(dummy, model, kModelId);
     RETURN weights(nodeId=0);
   END;
 
@@ -391,7 +391,7 @@ EXPORT GNNI_tf1 := MODULE
   EXPORT UNSIGNED4 SetWeights(UNSIGNED4 model, DATASET(t_Tensor) weights) := FUNCTION
     kModelId := model DIV kerasIdFactor;
     weightsD := Tensor.R4.replicate(weights);
-    kstatus := ASSERT(Keras.SetWeights(weightsD, model, kModelId), LENGTH(text) = 0, 'SetWeights Exception: ' + text, FAIL);
+    kstatus := ASSERT(Keras_tf1.SetWeights(weightsD, model, kModelId), LENGTH(text) = 0, 'SetWeights Exception: ' + text, FAIL);
     status := reduceResults(kstatus);
     mod :=  IF(LENGTH(status) = 0, getToken(model), 0);
     RETURN mod;
@@ -405,7 +405,7 @@ EXPORT GNNI_tf1 := MODULE
   EXPORT REAL GetLoss(UNSIGNED4 model) := FUNCTION
     kModelId := model DIV kerasIdFactor;
     dummy := DATASET(1, TRANSFORM(kString, SELF.id := 1, SELF.typ := kStrType.None, SELF.text := ''), LOCAL);
-    trainLosses := Keras.GetLoss(dummy, model, kModelId);
+    trainLosses := Keras_tf1.GetLoss(dummy, model, kModelId);
     // Each node provides the average loss across samples in the epoch.
     // We return the average of those averages.
     trainLoss := AVE(trainLosses, loss);
@@ -531,7 +531,7 @@ EXPORT GNNI_tf1 := MODULE
         batchPos := (batchNum-1) * eBatchSize + 1;
         xBatch := int.TensExtract(xAl, batchPos, eBatchSize);
         yBatch := int.TensExtract(yAl, batchPos, eBatchSize);
-        wtChanges0 := IF(EXISTS(yBatch), Keras.FitBatch(wts2, xBatch, yBatch, model, epochNum, kModelId, localBatchSize, eLR), DATASET([], t_Tensor));
+        wtChanges0 := IF(EXISTS(yBatch), Keras_tf1.FitBatch(wts2, xBatch, yBatch, model, epochNum, kModelId, localBatchSize, eLR), DATASET([], t_Tensor));
         // Move all the changes for a given wi and slice to the same node.  Each
         // node has a set of wi/sliceIds to roll up.  Note that the original
         // weights are already replicated to all nodes.
@@ -589,7 +589,7 @@ EXPORT GNNI_tf1 := MODULE
     // Now change the Y's wi back to the original number
     xAl := aligned(wi <= maxInputWi);
     yAl := PROJECT(aligned(wi > maxInputWi), TRANSFORM(RECORDOF(LEFT), SELF.wi := LEFT.wi - maxInputWi, SELF := LEFT), LOCAL);
-    m0 := Keras.Evaluate(xAl, yAl, model, kModelId);
+    m0 := Keras_tf1.Evaluate(xAl, yAl, model, kModelId);
     m1 := DISTRIBUTE(m0, metricId);
     m2 := TABLE(m1,
                 {metricId, metricName, avgVal := AVE(GROUP, value)},
@@ -622,7 +622,7 @@ EXPORT GNNI_tf1 := MODULE
     maxInputWi := MAX(x, wi); // The number of tensors in the input
     aligned := Tensor.R4.AlignTensors(x);
     xAl := IF(maxInputWi > 1, aligned, x); // Only align if multiple tensors in input
-    pred := Keras.Predict(xAl, model, kModelId);
+    pred := Keras_tf1.Predict(xAl, model, kModelId);
     return pred;
   END;
   /**
@@ -640,7 +640,7 @@ EXPORT GNNI_tf1 := MODULE
                                       SELF.nNodes := nNodes,
                                       SELF.maxSliceSize := Tensor.MAX_SLICE), LOCAL);
     dummy := DATASET(1, TRANSFORM(kString, SELF.id := 1, SELF.typ := kStrType.None, SELF.text := ''), LOCAL);
-    kstatus := ASSERT(Keras.Shutdown(dummy, model), LENGTH(text) = 0, 'Shutdown Exception: ' + text, FAIL);
+    kstatus := ASSERT(Keras_tf1.Shutdown(dummy, model), LENGTH(text) = 0, 'Shutdown Exception: ' + text, FAIL);
     status := reduceResults(kstatus);
     RETURN IF(LENGTH(status) = 0, getToken(model), 0);
   END;
