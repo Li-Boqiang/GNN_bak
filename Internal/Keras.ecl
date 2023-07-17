@@ -44,27 +44,14 @@ EXPORT Keras := MODULE
     # Function to initialize all the global variables and functions.  This should
     # only be called once.
     def initGlobals():
-      import numpy as np
-      import math
-      global nodeId, nNodes, maxSliceLen
-      # Assign GPUs to Thor nodes if needed.
-      import os
-      #this "CUDA VISIBLE DEVICES" will set which GPU a given Thor node will have access to
-      #without this, each single Thor node will try and allocate memory on all GPUs, which will make it crash
-      global cudaVisibleDevices
-      if gpusperserver > 0:
-        numServers = nNodes / gpusperserver
-        os.environ["CUDA_VISIBLE_DEVICES"]=str(math.floor(int(nodeId)/numServers))
-        # cudaVisibleDevices = str(math.floor(int(nodeId)/numServers))
-      else:
-        # cudaVisibleDevices = "-1"
-        os.environ["CUDA_VISIBLE_DEVICES"]="-1"
       try:
         import tensorflow as tf # V2.x
       except:
         assert 1 == 0, 'tensorflow not found'
       from tensorflow.keras import layers
-      
+      import numpy as np
+      import math
+      global nodeId, nNodes, maxSliceLen
       # Initialize global variables
       #   Extract the initialization parameters from initdata
       for rec in initdata:
@@ -107,8 +94,16 @@ EXPORT Keras := MODULE
         else:
           return func + ': ' + exc[:200] + ' ... ' + exc[-200:]
       format_exc = _format_exc
-
-
+      
+      # Assign GPUs to Thor nodes if needed.
+      import os
+      #this "CUDA VISIBLE DEVICES" will set which GPU a given Thor node will have access to
+      #without this, each single Thor node will try and allocate memory on all GPUs, which will make it crash
+      if gpusperserver > 0:
+        numServers = nNodes / gpusperserver
+        os.environ["CUDA_VISIBLE_DEVICES"]=str(math.floor(int(nodeId)/numServers))
+      else:
+        os.environ["CUDA_VISIBLE_DEVICES"]="-1"
       tf.keras.backend.clear_session()
 
       # Convert an ECL Tensor dataset into a single numpy ndarray.
