@@ -19,7 +19,7 @@ imageRecord := RECORD
   UNSIGNED8  RecPos{virtual(fileposition)};
 END;
 
-imageData := DATASET('~te::ele',imageRecord,FLAT);
+imageData := DATASET('~le::elephant',imageRecord,FLAT);
 OUTPUT(imageData, NAMED('elephant'));
 
 
