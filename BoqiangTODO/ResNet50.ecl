@@ -69,7 +69,7 @@ STRING modName := 'ResNet50';
 mod := GNNI.DefineKAModel(s, modName, mdef);
 OUTPUT(mod, NAMED('mod'));
 summary := GNNI.getSummary(mod);
-OUTPUT(summary, NAMED('summary'));
+// OUTPUT(summary, NAMED('summary'));
 res := GNNI.Predict(mod, x);
 
 OUTPUT(res, NAMED('res'));
