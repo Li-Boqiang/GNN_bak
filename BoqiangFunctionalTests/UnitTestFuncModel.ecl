@@ -94,6 +94,15 @@ OUTPUT(mod3, NAMED('mod3'));
 mod3Summary := GNNI.getSummary(mod3);
 OUTPUT(mod3Summary, NAMED('mod3Summary'));
 
+wts3 := GNNI.GetWeights(mod3);
+
+STRING IncorrectResult(INTEGER Expected, INTEGER Result) := FUNCTION
+  RETURN 'Expected: ' + Expected + ' Result: ' + Result;
+END;
+
+OUTPUT(IF(wts2 = wts3, 'Correct', 'Wrong'), NAMED('Test2'));
+
+
 // get mod3 's weights and compare with weights2
 // get json and compare 
 
