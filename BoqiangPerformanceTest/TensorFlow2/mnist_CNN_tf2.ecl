@@ -5,12 +5,10 @@ IMPORT GNN.Internal.Types AS iTypes;
 IMPORT GNN.Types;
 IMPORT GNN.GNNI;
 IMPORT GNN.Internal AS Int;
-IMPORT ML_Core AS mlc;
 IMPORT STD;
 
 kString := iTypes.kString;
 kStrType := iTypes.kStrType;
-NumericField := mlc.Types.NumericField;
 t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
 

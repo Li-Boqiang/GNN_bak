@@ -824,7 +824,7 @@ EXPORT Keras := MODULE
       # Restore the keras / tensorflow context for this model.
       mod = modcache[modelid]
       stringlist = []
-      mod.summary(print_fn=lambda x: stringlist.append(x))
+      mod.summary(print_fn=lambda x: stringlist.append(x+'\n'))
       short_model_summary = "\n".join(stringlist)
       # Succeeded.  Return a blank status.
       return [(nodeId, 1, kStrTypeDict['status'], short_model_summary)]
