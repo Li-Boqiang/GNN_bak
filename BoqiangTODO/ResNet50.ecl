@@ -5,6 +5,7 @@ IMPORT GNN.Tensor;
 IMPORT GNN.Internal AS int;
 IMPORT GNN.Internal.Types AS iTypes;
 IMPORT Std.System.Thorlib;
+IMPORT STD;
 
 kString := iTypes.kString;
 kStrType := iTypes.kStrType;
@@ -41,35 +42,53 @@ SET OF REAL4 hexToNparry(DATA byte_array):= EMBED(Python)
   return I_array.flatten().tolist()
 ENDEMBED;
 
-t1Rec := RECORD
+valueRec := RECORD
   REAL4 value;
 END;
 
-intpuRec := RECORD
+idValueRec := RECORD
   UNSIGNED8 id;
   REAL4 value;
 END;
 
 imageNpArray := hexToNparry(imageData[1].image);
-x1 := DATASET(imageNpArray, t1Rec);
-x2 := PROJECT(x1, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
+x1 := DATASET(imageNpArray, valueRec);
+x2 := PROJECT(x1, TRANSFORM(idValueRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
 x3 := PROJECT(x2, TRANSFORM(TensData, SELF.indexes := [1, TRUNCATE(LEFT.id/(224*3)) + 1, TRUNCATE(LEFT.id/3)%224 + 1, LEFT.id%3 + 1], SELF.value := LEFT.value));
 x := Tensor.R4.MakeTensor([0,224,224,3], x3);
 
 // load the model
-
 s := GNNI.GetSession(1);
 mdef := 'weights="imagenet"';
 STRING modName := 'ResNet50';
 mod := GNNI.DefineKAModel(s, modName, mdef);
-OUTPUT(mod, NAMED('mod'));
-summary := GNNI.getSummary(mod);
-// OUTPUT(summary, NAMED('summary'));
-res := GNNI.Predict(mod, x);
 
-OUTPUT(res, NAMED('res'));
+// Predict 
+preds_tens := GNNI.Predict(mod, x);
+preds := Tensor.R4.GetData(preds_tens);
 
+predictRes := RECORD
+  STRING class;
+  REAL4 probability;
+END;
 
+// decode predictions
+DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3) := EMBED(Python)
+  try:
+    from tensorflow.keras.applications.resnet50 import decode_predictions
+  except:
+    assert 1 == 0, 'tensorflow not found'
+  import numpy as np
+  predsNp = np.zeros((1, 1000))
+  i = 0
+  for pred in preds:
+    predsNp[0, i] = pred[1]
+    i = i + 1
+  res = decode_predictions(predsNp, top=topK)[0]
+  ret = []
+  for i in range(topK):
+    ret.append((res[i][1], res[i][2]))
+  return ret
+ENDEMBED;
 
-// OUTPUT(hexToNparry(imageData[1].image), NAMED('npShape'));
-
+OUTPUT(decodePredictions(preds), NAMED('predictions'));
