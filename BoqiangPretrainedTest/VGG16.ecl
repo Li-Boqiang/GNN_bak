@@ -12,6 +12,8 @@ kStrType := iTypes.kStrType;
 t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
 
+mdef := 'weights="imagenet"';
+STRING modName := 'VGG16';
 
 // load the test data, an image of a elephant
 imageRecord := RECORD
@@ -38,7 +40,7 @@ SET OF REAL4 hexToNparry(DATA byte_array):= EMBED(Python)
   image = Image.open(io.BytesIO(bytes_data))
   image = image.resize((224,224))
   I_array = np.array(image)
-  I_array = tf.keras.applications.resnet50.preprocess_input(I_array)
+  I_array = tf.keras.applications.vgg16.preprocess_input(I_array)
   return I_array.flatten().tolist()
 ENDEMBED;
 
@@ -59,8 +61,6 @@ x := Tensor.R4.MakeTensor([0,224,224,3], x3);
 
 // load the model
 s := GNNI.GetSession(1);
-mdef := 'weights="imagenet"';
-STRING modName := 'ResNet50';
 mod := GNNI.DefineKAModel(s, modName, mdef);
 
 // Predict 
@@ -75,7 +75,7 @@ END;
 // decode predictions
 DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3) := EMBED(Python)
   try:
-    from tensorflow.keras.applications.resnet50 import decode_predictions
+    from tensorflow.keras.applications.vgg16 import decode_predictions
   except:
     assert 1 == 0, 'tensorflow not found'
   import numpy as np
@@ -92,3 +92,12 @@ DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3)
 ENDEMBED;
 
 OUTPUT(decodePredictions(preds), NAMED('predictions'));
+
+/*
+Results:
+
+class                   probability
+banded_gecko	          0.6309806704521179
+cock	                  0.3531200289726257
+box_turtle	            0.01582811027765274
+*/

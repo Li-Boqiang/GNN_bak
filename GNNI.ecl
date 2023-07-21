@@ -799,7 +799,7 @@ EXPORT GNNI := MODULE
     SET OF STRING supportedModels := [
                                 //  Year       Size        Depth     Default Shape
                                 //  -----------------------------------------------
-      'Xception',               //  2017        88 MB        126     (229,229,3)
+      'Xception',               //  2017        88 MB        126     (299,299,3)
       'VGG16',                  //  2015       528 MB         23     (224,224,3)
       'VGG19',                  //  2015       549 MB         26     (224,224,3)
       'ResNet50',               //  2015        98 MB          -     (224,244,3)
@@ -808,9 +808,9 @@ EXPORT GNNI := MODULE
       'ResNet50V2',             //  2016        98 MB          -     (224,224,3)
       'ResNet101V2',            //  2016       171 MB          -     (224,224,3)
       'ResNet152V2',            //  2016       232 MB          -     (224,224,3)
-      'InceptionV3',            //  2016        92 MB        159     (229,229,3)
-      'InceptionResNetV2',      //  2017       215 MB        572     (229,229,3)
-      'MobileNet',              //              16 MB         88     (224,224,3)
+      'InceptionV3',            //  2016        92 MB        159     (299,299,3)
+      'InceptionResNetV2',      //  2017       215 MB        572     (299,299,3)
+      'MobileNet',              //  2017        16 MB         88     (224,224,3)
       'MobileNetV2',            //  2018        14 MB         88     (224,224,3)
       'DenseNet121',            //  2017        33 MB        121     (224,224,3)
       'DenseNet169',            //  2017        57 MB        169     (224,224,3)
