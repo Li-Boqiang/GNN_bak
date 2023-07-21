@@ -12,7 +12,7 @@ t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
 
 
-// load test data
+// load the test data, an image of a elephant
 imageRecord := RECORD
   STRING filename;
   DATA   image;   
@@ -51,20 +51,12 @@ intpuRec := RECORD
 END;
 
 imageNpArray := hexToNparry(imageData[1].image);
-OUTPUT(imageNpArray, NAMED('imageNpArray'));
 x1 := DATASET(imageNpArray, t1Rec);
-OUTPUT(x1, NAMED('x1'));
-OUTPUT(COUNT(x1), NAMED('cnt_x1'));
 x2 := PROJECT(x1, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
-OUTPUT(x2, NAMED('x2'));
-OUTPUT(COUNT(x2), NAMED('cnt_x2'));
-
 x3 := PROJECT(x2, TRANSFORM(TensData, SELF.indexes := [1, TRUNCATE(LEFT.id/(224*3)) + 1, TRUNCATE(LEFT.id/3)%224 + 1, LEFT.id%3 + 1], SELF.value := LEFT.value));
-
 x := Tensor.R4.MakeTensor([0,224,224,3], x3);
-OUTPUT(x, NAMED('x'));
 
-// load model
+// load the model
 
 s := GNNI.GetSession(1);
 mdef := 'weights="imagenet"';
