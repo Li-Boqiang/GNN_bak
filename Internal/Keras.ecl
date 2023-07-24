@@ -296,6 +296,7 @@ EXPORT Keras := MODULE
     except:
       assert 1 == 0, 'tensorflow not found'
     from tensorflow.keras import layers
+    from tensorflow.keras import applications
     global nextModId
     try:
       # Allocate a new modelId
