@@ -89,9 +89,9 @@ compileDef := '''compile(optimizer=tf.keras.optimizers.RMSprop(epsilon=1e-08),
                 loss='categorical_crossentropy', metrics=['acc'])
               ''';
 
-mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
-                                        SELF.id  := COUNTER,
-                                        SELF.text := ldef[COUNTER]));  
+// mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
+//                                         SELF.id  := COUNTER,
+//                                         SELF.text := ldef[COUNTER]));  
 s := GNNI.GetSession(1);
 mod := GNNI.DefineModel(s, ldef, compileDef);
 

@@ -804,6 +804,17 @@ EXPORT GNNI := MODULE
       'ConvNeXtSmall',          //  2022       200 MB                (224,224,3)
       'ConvNeXtTiny',           //  2022       112 MB                (224,224,3)
       // 'ConvNeXtXLarge',         //  2022      1400 MB                (224,224,3)
+      'DenseNet121',            //  2017        33 MB        121     (224,224,3)
+
+
+
+
+
+
+
+
+
+
       'Xception',               //  2017        88 MB        126     (299,299,3)
       'VGG16',                  //  2015       528 MB         23     (224,224,3)
       'VGG19',                  //  2015       549 MB         26     (224,224,3)
@@ -817,7 +828,6 @@ EXPORT GNNI := MODULE
       'InceptionResNetV2',      //  2017       215 MB        572     (299,299,3)
       'MobileNet',              //  2017        16 MB         88     (224,224,3)
       'MobileNetV2',            //  2018        14 MB         88     (224,224,3)
-      'DenseNet121',            //  2017        33 MB        121     (224,224,3)
       'DenseNet169',            //  2017        57 MB        169     (224,224,3)
       'DenseNet1201',           //  2017        80 MB        201     (224,224,3)
       'NASNetMobile',           //  2018        23 MB          -     (224,224,3)
