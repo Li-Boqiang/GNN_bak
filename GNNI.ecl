@@ -842,7 +842,7 @@ EXPORT GNNI := MODULE
       'EfficientNetB7'          //  2019       256 MB          -
     ];
     checkModel := ASSERT(fname IN supportedModels, 'Unsupported model ' + fname, FAIL);
-    mdef1 := DATASET([{0, 1, kStrType.layer, fdef}], kString);
+    mdef1 := WHEN(DATASET([{0, 1, kStrType.layer, fdef}], kString), checkModel);
     mdef2 := DATASET([{0, 2, kStrType.compile, cdef}], kString);
     mdef := IF(LENGTH(cdef) > 0, mdef1 + mdef2, mdef1);
     mdefRepl0 := SORT(DISTRIBUTE(mdef, ALL), id, LOCAL);
