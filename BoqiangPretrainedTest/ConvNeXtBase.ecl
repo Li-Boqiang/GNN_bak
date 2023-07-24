@@ -1,7 +1,7 @@
 /*
 About this test:
-  Test the usability of Pre-trained Model VGG16.
-  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/vgg16
+  Test the usability of Pre-trained Model ConvNeXtBase.
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/convnext/ConvNeXtBase
 */
 
 IMPORT Python3 AS Python;
@@ -19,7 +19,7 @@ t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
 
 mdef := 'weights="imagenet"';
-STRING modName := 'VGG16';
+STRING modName := 'ResNet50';
 
 // load the test data, an image of a elephant
 imageRecord := RECORD
@@ -46,7 +46,7 @@ SET OF REAL4 hexToNparry(DATA byte_array):= EMBED(Python)
   image = Image.open(io.BytesIO(bytes_data))
   image = image.resize((224,224))
   I_array = np.array(image)
-  I_array = tf.keras.applications.vgg16.preprocess_input(I_array)
+  I_array = tf.keras.applications.convnext.preprocess_input(I_array)
   return I_array.flatten().tolist()
 ENDEMBED;
 
@@ -81,7 +81,7 @@ END;
 // decode predictions
 DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3) := EMBED(Python)
   try:
-    from tensorflow.keras.applications.vgg16 import decode_predictions
+    from tensorflow.keras.applications.convnext import decode_predictions
   except:
     assert 1 == 0, 'tensorflow not found'
   import numpy as np
@@ -103,7 +103,7 @@ OUTPUT(decodePredictions(preds), NAMED('predictions'));
 Results:
 
 class                   probability
-banded_gecko	          0.6309806704521179
-cock	                  0.3531200289726257
-box_turtle	            0.01582811027765274
+African_elephant	      0.676945149898529
+tusker	                0.2975042462348938
+Indian_elephant	        0.0226921159774065
 */

@@ -799,6 +799,8 @@ EXPORT GNNI := MODULE
     SET OF STRING supportedModels := [
                                 //  Year       Size        Depth     Default Shape
                                 //  -----------------------------------------------
+      'ConvNeXtBase',           //  2022       354 MB                (224,224,3)
+      'ConvNeXtLarge',          //  2022       791 MB                (224,224,3)
       'Xception',               //  2017        88 MB        126     (299,299,3)
       'VGG16',                  //  2015       528 MB         23     (224,224,3)
       'VGG19',                  //  2015       549 MB         26     (224,224,3)

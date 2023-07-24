@@ -1,3 +1,9 @@
+/*
+About this test:
+  Test the usability of Pre-trained Model ResNet50.
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet50/ResNet50
+*/
+
 IMPORT Python3 AS Python;
 IMPORT $.^ AS GNN;
 IMPORT GNN.GNNI;
@@ -13,7 +19,7 @@ t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
 
 mdef := 'weights="imagenet"';
-STRING modName := 'Xception';
+STRING modName := 'ResNet50';
 
 // load the test data, an image of a elephant
 imageRecord := RECORD

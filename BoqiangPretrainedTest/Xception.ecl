@@ -1,6 +1,8 @@
 /*
 About this test:
-  Test the results of Xception net, input shape = (299,299,3)
+  Test the usability of Pre-trained Model Xception. 
+  Input shape = (299,299,3)
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/xception
 */
 
 IMPORT Python3 AS Python;

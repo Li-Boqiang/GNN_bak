@@ -1,3 +1,10 @@
+/*
+About this test:
+  Test the usability of Pre-trained Model ResNet101.
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet/ResNet101
+*/
+
+
 IMPORT Python3 AS Python;
 IMPORT $.^ AS GNN;
 IMPORT GNN.GNNI;
