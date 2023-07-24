@@ -1,6 +1,6 @@
-val1 := 1;
-val2 := 1;
-val3 := 2;
+STRING val1 := '1234';
 
-ASSERT(val1 = val2, 'Abc1');
-ASSERT(val1 = val3, 'Abc2');
+SET OF STRING supportedModels := ['123', '124', '125'];
+
+
+ASSERT(val1 IN supportedModels, 'Abc1');
