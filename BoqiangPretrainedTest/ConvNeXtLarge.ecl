@@ -1,7 +1,7 @@
 /*
 About this test:
-  Test the usability of Pre-trained Model ConvNeXtBase.
-  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/convnext/ConvNeXtBase
+  Test the usability of Pre-trained Model ConvNeXtLarge.
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/convnext/ConvNeXtLarge
   Input shape = (224, 224, 3) 
   Note: The output of convnext.preprocess_input is integers
 */
@@ -21,7 +21,7 @@ t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
 
 mdef := 'weights="imagenet"';
-STRING modName := 'ConvNeXtBase';
+STRING modName := 'ConvNeXtLarge';
 
 // load the test data, an image of a elephant
 imageRecord := RECORD
@@ -105,7 +105,7 @@ OUTPUT(decodePredictions(preds), NAMED('predictions'));
 Results:
 
 class                   probability
-tusker	                9.285942077636719
-African_elephant	      8.67857837677002
-Indian_elephant	        3.142804145812988
+African_elephant	      9.256576538085938
+tusker	                8.995600700378418
+Indian_elephant	        3.198961019515991
 */
