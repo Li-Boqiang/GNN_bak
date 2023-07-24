@@ -84,12 +84,12 @@ resnet_model_summary := GNNI.getSummary(resnet_model);
 OUTPUT(resnet_model_summary, NAMED('resnet_model_summary'));
 
 ldef := ['''layers.UpSampling2D(size=(7, 7), interpolation='bilinear', input_shape=(32, 32, 3))''',
-          '''tensorflow.keras.applications.resnet50.ResNet50(include_top = False,weights = "imagenet")''',
+          '''applications.resnet50.ResNet50(include_top = False,weights = "imagenet")''',
           '''layers.GlobalAveragePooling2D()''',
           '''layers.Dropout(0.25)''',
           '''layers.Dense(256, activation='relu')''',
           '''layers.BatchNormalization()''',
-          '''layers.Dense(100, activation='softmax'))'''];
+          '''layers.Dense(100, activation='softmax')'''];
 
 // ldef := ['''resnet_model'''];
 
