@@ -35,16 +35,6 @@ batchSize := 128;
 
 ldef := ['''layers.Dense(16, activation='tanh', input_shape=(5,))''',
           '''layers.Dense(16, activation='relu')''',
-          '''layers.Dense(16, activation='relu')''',
-          '''layers.Dense(16, activation='relu')''',
-          '''layers.Dense(16, activation='relu')''',
-          '''layers.Dense(16, activation='relu')''',
-          '''layers.Dense(16, activation='relu')''',
-          '''layers.Dense(16, activation='relu')''',
-          '''layers.Dense(16, activation='relu')''',
-          '''layers.Dense(16, activation='relu')''',
-          '''layers.Dense(16, activation='relu')''',
-          '''layers.Dense(16, activation='relu')''',
           '''layers.Dense(3, activation='softmax')'''];
 
 compileDef := '''compile(optimizer=tf.keras.optimizers.experimental.SGD(learning_rate=0.05),
