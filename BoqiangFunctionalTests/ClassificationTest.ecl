@@ -47,25 +47,8 @@ OUTPUT(ldef, NAMED('ldef'));
 mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
                                         SELF.id  := COUNTER,
                                         SELF.text := ldef[COUNTER]));  
-OUTPUT(mdef1, NAMED('mdef_test'));                                             
-OUTPUT(compileDef, NAMED('compileDef'));   
-
-
 s := GNNI.GetSession(1);
-OUTPUT(s, NAMED('s'));
-
 mod := GNNI.DefineModel(s, ldef, compileDef);
-wts := GNNI.GetWeights(mod);
-OUTPUT(wts, NAMED('InitWeights'));
-
-NewWeights := PROJECT(wts, TRANSFORM(RECORDOF(LEFT), SELF.denseData := IF(LEFT.wi = 1, 
-                [.5, .5, .5] + LEFT.densedata[4..], LEFT.densedata), SELF := LEFT));
-
-OUTPUT(NewWeights, NAMED('NewWeights'));
-mod2 := GNNI.SetWeights(mod, NewWeights);
-wts2 := GNNI.GetWeights(mod2);
-OUTPUT(wts2, NAMED('SetWeights'));
-
 
 trainRec := RECORD
   UNSIGNED8 id;
@@ -138,32 +121,15 @@ testY := NORMALIZE(test, classCount, TRANSFORM(NumericField,
 OUTPUT(testX, NAMED('testX'));
 OUTPUT(testY, NAMED('testY'));
 
-// StartTime:= STD.Date.CurrentTime(TRUE); //Local Time
-// o_start := OUTPUT(StartTime, NAMED('StartTime'));
-// start_when := WHEN(testX, o_start);
-OUTPUT(mod, NAMED('mod'));
+mod2 := GNNI.FitNF(mod, trainX, trainY, batchSize := batchSize, numEpochs := numEpochs);
 
-mod3 := GNNI.FitNF(mod, trainX, trainY, batchSize := batchSize, numEpochs := numEpochs);
-
-// ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')), 
-//   OUTPUT(GNNI.FitNF(mod, trainX, trainY, batchSize := batchSize, numEpochs := numEpochs), NAMED('mod3')),
-//   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end'))]);
-
-losses := GNNI.GetLoss(mod3);
-metrics := GNNI.EvaluateNF(mod3, testX, testY);
-preds := GNNI.PredictNF(mod3, testX);
-
-// ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')), 
-//   OUTPUT(mod3, NAMED('mod3')),
-//   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end')),
-//   OUTPUT(losses, NAMED('losses')),
-//   OUTPUT(metrics, NAMED('metrics')),
-//   OUTPUT(testY, ALL, NAMED('testDat')),
-//   OUTPUT(preds, NAMED('predictions'))]);
+losses := GNNI.GetLoss(mod2);
+metrics := GNNI.EvaluateNF(mod2, testX, testY);
+preds := GNNI.PredictNF(mod2, testX);
 
 ORDERED(
   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')),
-  OUTPUT(mod3, NAMED('mod3')),
+  OUTPUT(mod2, NAMED('mod2')),
   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end')),
   PARALLEL(
            OUTPUT(losses, NAMED('losses')),
@@ -172,21 +138,3 @@ ORDERED(
            OUTPUT(preds, NAMED('predictions'))
            )
         );
-
-// EndTime:= STD.Date.CurrentTime(TRUE); //Local Time
-// OUTPUT(EndTime, NAMED('EndTime'));
-
-
-// OUTPUT(mod3, NAMED('mod3'));
-
-// losses := GNNI.GetLoss(mod3);
-// OUTPUT(losses, NAMED('losses'));
-
-// metrics := GNNI.EvaluateNF(mod3, testX, testY);
-
-// OUTPUT(metrics, NAMED('metrics'));
-
-// preds := GNNI.PredictNF(mod3, testX);
-
-// OUTPUT(testY, ALL, NAMED('testDat'));
-// OUTPUT(preds, NAMED('predictions'));

@@ -23,7 +23,7 @@ FuncLayerDef := Types.FuncLayerDef;
 RAND_MAX := POWER(2,32) -1;
 
 // Test parameters
-numEpochs := 5;
+numEpochs := 10;
 batchSize := 128;
 trainCount := 1000;
 testCount := 1000;

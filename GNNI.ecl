@@ -772,6 +772,28 @@ EXPORT GNNI := MODULE
     RETURN nf;
   END;
 
+  EXPORT DATASET(GNN_Model) getModel(UNSIGNED4 mod) := FUNCTION
+    kModelId := mod DIV kerasIdFactor;
+    results := Keras.ToJSON(DATASET([], kString), mod, kModelId);
+    json := results[1].text;
+    layersRec := DATASET(1, TRANSFORM(GNN_Model, SELF.model_JSON := json, 
+      SELF.wi := 0, SELF.nodeId := 0, SELF.sliceId := 0, SELF.shape := [], SELF.dataType := 0, 
+      SELF.maxSliceSize := 0, SELF.sliceSize := 0, SELF.denseData := [], 
+      SELF.sparseData := DATASET([], Tensor.R4.t_SparseDat)), DISTRIBUTED);
+    weights := GetWeights(mod);
+    modWeights := PROJECT(weights, TRANSFORM(GNN_Model, SELF := LEFT));
+    fullModel := layersRec + modWeights;
+    RETURN fullModel;
+  END;
+
+  EXPORT UNSIGNED4 setModel(UNSIGNED4 sess, DATASET(GNN_Model) fullModel) := FUNCTION
+    layerJSON := fullModel(wi = 0)[1].model_JSON;
+    trainedWeights := PROJECT(fullModel(wi > 0), t_Tensor);
+
+    modId := FromJSON_(sess, layerJSON);
+    RETURN setWeights(modId, trainedWeights);
+  END;
+
   /**
     * Return a JSON representation of the Keras model.
     *
