@@ -1,15 +1,15 @@
 /*
 About this test:
-  Test the usability of Pre-trained Model Xception. 
-  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/xception
-  Input shape = (299,299,3)
+  Test the usability of Pre-trained Model EfficientNetB5.
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/efficientnet/EfficientNetB5
+  Input shape = (456, 456, 3) 
 
 Results:
 
 class                   probability
-tusker	                0.483847588300705
-African_elephant	      0.4623934328556061
-Indian_elephant	        0.005043064709752798
+tusker	                0.7668089866638184
+African_elephant	      0.1169288083910942
+Indian_elephant	        0.001198715530335903
 */
 
 IMPORT Python3 AS Python;
@@ -26,9 +26,6 @@ kStrType := iTypes.kStrType;
 t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
 
-mdef := 'weights="imagenet"';
-STRING modName := 'Xception';
-
 // load the test data, an image of a elephant
 imageRecord := RECORD
   STRING filename;
@@ -38,11 +35,10 @@ imageRecord := RECORD
 END;
 
 imageData := DATASET('~le::elephant',imageRecord,FLAT);
-OUTPUT(imageData, NAMED('elephant'));
 
 result := (STRING)(imageData[1].image);
 
-SET OF REAL4 hexToNparry(DATA byte_array):= EMBED(Python)
+SET OF INTEGER hexToNparry(DATA byte_array):= EMBED(Python)
   from PIL import Image
   import numpy as np
   import io
@@ -52,9 +48,9 @@ SET OF REAL4 hexToNparry(DATA byte_array):= EMBED(Python)
     assert 1 == 0, 'tensorflow not found'
   bytes_data = bytes(byte_array)
   image = Image.open(io.BytesIO(bytes_data))
-  image = image.resize((299,299))
+  image = image.resize((456,456))
   I_array = np.array(image)
-  I_array = tf.keras.applications.xception.preprocess_input(I_array)
+  I_array = tf.keras.applications.efficientnet.preprocess_input(I_array)
   return I_array.flatten().tolist()
 ENDEMBED;
 
@@ -70,16 +66,19 @@ END;
 imageNpArray := hexToNparry(imageData[1].image);
 x1 := DATASET(imageNpArray, valueRec);
 x2 := PROJECT(x1, TRANSFORM(idValueRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
-x3 := PROJECT(x2, TRANSFORM(TensData, SELF.indexes := [1, TRUNCATE(LEFT.id/(299*3)) + 1, TRUNCATE(LEFT.id/3)%299 + 1, LEFT.id%3 + 1], SELF.value := LEFT.value));
-x := Tensor.R4.MakeTensor([0,299,299,3], x3);
+x3 := PROJECT(x2, TRANSFORM(TensData, SELF.indexes := [1, TRUNCATE(LEFT.id/(456*3)) + 1, TRUNCATE(LEFT.id/3)%456 + 1, LEFT.id%3 + 1], SELF.value := LEFT.value));
+x := Tensor.R4.MakeTensor([0,456,456,3], x3);
 
 // load the model
 s := GNNI.GetSession(1);
-mod := GNNI.DefineKAModel(s, modName, mdef);
+ldef := ['''applications.efficientnet.EfficientNetB5(weights = "imagenet")'''];
+mod := GNNI.DefineModel(s, ldef);
 
 // Predict 
 preds_tens := GNNI.Predict(mod, x);
 preds := Tensor.R4.GetData(preds_tens);
+
+OUTPUT(preds, NAMED('preds'));
 
 predictRes := RECORD
   STRING class;
@@ -89,7 +88,7 @@ END;
 // decode predictions
 DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3) := EMBED(Python)
   try:
-    from tensorflow.keras.applications.xception import decode_predictions
+    from tensorflow.keras.applications.efficientnet import decode_predictions
   except:
     assert 1 == 0, 'tensorflow not found'
   import numpy as np
@@ -104,7 +103,3 @@ DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3)
 ENDEMBED;
 
 OUTPUT(decodePredictions(preds), NAMED('predictions'));
-
-/*
-
-*/

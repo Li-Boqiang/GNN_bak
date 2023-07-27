@@ -3,6 +3,13 @@ About this test:
   Test the usability of Pre-trained Model DenseNet121.
   Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/densenet/DenseNet121
   Input shape = (224, 224, 3) 
+
+Results:
+
+class                   probability
+African_elephant	      0.6140744090080261
+tusker	                0.3809647560119629
+Indian_elephant	        0.004958448931574821
 */
 
 IMPORT Python3 AS Python;
@@ -19,9 +26,6 @@ kStrType := iTypes.kStrType;
 t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
 
-mdef := 'weights="imagenet"';
-STRING modName := 'DenseNet121';
-
 // load the test data, an image of a elephant
 imageRecord := RECORD
   STRING filename;
@@ -31,7 +35,6 @@ imageRecord := RECORD
 END;
 
 imageData := DATASET('~le::elephant',imageRecord,FLAT);
-OUTPUT(imageData, NAMED('elephant'));
 
 result := (STRING)(imageData[1].image);
 
@@ -48,7 +51,6 @@ SET OF REAL hexToNparry(DATA byte_array):= EMBED(Python)
   image = image.resize((224,224))
   I_array = np.array(image)
   I_array = tf.keras.applications.densenet.preprocess_input(I_array)
-  # I_array = I_array * 100
   return I_array.flatten().tolist()
 ENDEMBED;
 
@@ -62,7 +64,6 @@ idValueRec := RECORD
 END;
 
 imageNpArray := hexToNparry(imageData[1].image);
-OUTPUT(imageNpArray, NAMED('imageNpArray'));
 x1 := DATASET(imageNpArray, valueRec);
 x2 := PROJECT(x1, TRANSFORM(idValueRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
 x3 := PROJECT(x2, TRANSFORM(TensData, SELF.indexes := [1, TRUNCATE(LEFT.id/(224*3)) + 1, TRUNCATE(LEFT.id/3)%224 + 1, LEFT.id%3 + 1], SELF.value := LEFT.value));
@@ -70,7 +71,8 @@ x := Tensor.R4.MakeTensor([0,224,224,3], x3);
 
 // load the model
 s := GNNI.GetSession(1);
-mod := GNNI.DefineKAModel(s, modName, mdef);
+ldef := ['''applications.densenet.DenseNet121(weights = "imagenet")'''];
+mod := GNNI.DefineModel(s, ldef);
 
 // Predict 
 preds_tens := GNNI.Predict(mod, x);
@@ -84,7 +86,7 @@ predictRes := RECORD
 END;
 
 // decode predictions
-DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 1000) := EMBED(Python)
+DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3) := EMBED(Python)
   try:
     from tensorflow.keras.applications.densenet import decode_predictions
   except:
@@ -101,12 +103,3 @@ DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 10
 ENDEMBED;
 
 OUTPUT(decodePredictions(preds), NAMED('predictions'));
-
-/*
-Results:
-
-class                   probability
-tusker	                8.465365409851074
-African_elephant	      8.082895278930664
-Indian_elephant	        2.839383125305176
-*/

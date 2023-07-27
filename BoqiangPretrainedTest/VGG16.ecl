@@ -2,6 +2,14 @@
 About this test:
   Test the usability of Pre-trained Model VGG16.
   Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/vgg16
+  Input shape = (224, 224, 3) 
+  
+Results:
+
+class                   probability
+African_elephant	      0.6310999989509583
+tusker	                0.3530056476593018
+Indian_elephant	        0.01582310535013676
 */
 
 IMPORT Python3 AS Python;
@@ -98,10 +106,5 @@ ENDEMBED;
 OUTPUT(decodePredictions(preds), NAMED('predictions'));
 
 /*
-Results:
 
-class                   probability
-African_elephant	      0.6310999989509583
-tusker	                0.3530056476593018
-Indian_elephant	        0.01582310535013676
 */

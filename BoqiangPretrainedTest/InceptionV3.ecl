@@ -1,15 +1,15 @@
 /*
 About this test:
-  Test the usability of Pre-trained Model Xception. 
-  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/xception
-  Input shape = (299,299,3)
-
+  Test the usability of Pre-trained Model InceptionV3.
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/inception_v3/InceptionV3
+  Input shape = (299, 299, 3) 
+  
 Results:
 
 class                   probability
-tusker	                0.483847588300705
-African_elephant	      0.4623934328556061
-Indian_elephant	        0.005043064709752798
+tusker	                0.6367706060409546
+African_elephant	      0.2629912197589874
+Indian_elephant	        0.006488858722150326
 */
 
 IMPORT Python3 AS Python;
@@ -26,9 +26,6 @@ kStrType := iTypes.kStrType;
 t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
 
-mdef := 'weights="imagenet"';
-STRING modName := 'Xception';
-
 // load the test data, an image of a elephant
 imageRecord := RECORD
   STRING filename;
@@ -38,11 +35,10 @@ imageRecord := RECORD
 END;
 
 imageData := DATASET('~le::elephant',imageRecord,FLAT);
-OUTPUT(imageData, NAMED('elephant'));
 
 result := (STRING)(imageData[1].image);
 
-SET OF REAL4 hexToNparry(DATA byte_array):= EMBED(Python)
+SET OF REAL hexToNparry(DATA byte_array):= EMBED(Python)
   from PIL import Image
   import numpy as np
   import io
@@ -54,17 +50,17 @@ SET OF REAL4 hexToNparry(DATA byte_array):= EMBED(Python)
   image = Image.open(io.BytesIO(bytes_data))
   image = image.resize((299,299))
   I_array = np.array(image)
-  I_array = tf.keras.applications.xception.preprocess_input(I_array)
+  I_array = tf.keras.applications.inception_v3.preprocess_input(I_array)
   return I_array.flatten().tolist()
 ENDEMBED;
 
 valueRec := RECORD
-  REAL4 value;
+  REAL value;
 END;
 
 idValueRec := RECORD
   UNSIGNED8 id;
-  REAL4 value;
+  REAL value;
 END;
 
 imageNpArray := hexToNparry(imageData[1].image);
@@ -75,11 +71,14 @@ x := Tensor.R4.MakeTensor([0,299,299,3], x3);
 
 // load the model
 s := GNNI.GetSession(1);
-mod := GNNI.DefineKAModel(s, modName, mdef);
+ldef := ['''applications.inception_v3.InceptionV3(weights = "imagenet")'''];
+mod := GNNI.DefineModel(s, ldef);
 
 // Predict 
 preds_tens := GNNI.Predict(mod, x);
 preds := Tensor.R4.GetData(preds_tens);
+
+OUTPUT(preds, NAMED('preds'));
 
 predictRes := RECORD
   STRING class;
@@ -89,7 +88,7 @@ END;
 // decode predictions
 DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3) := EMBED(Python)
   try:
-    from tensorflow.keras.applications.xception import decode_predictions
+    from tensorflow.keras.applications.inception_v3 import decode_predictions
   except:
     assert 1 == 0, 'tensorflow not found'
   import numpy as np
@@ -104,7 +103,3 @@ DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3)
 ENDEMBED;
 
 OUTPUT(decodePredictions(preds), NAMED('predictions'));
-
-/*
-
-*/

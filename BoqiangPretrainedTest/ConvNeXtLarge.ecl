@@ -3,7 +3,15 @@ About this test:
   Test the usability of Pre-trained Model ConvNeXtLarge.
   Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/convnext/ConvNeXtLarge
   Input shape = (224, 224, 3) 
-  Note: The output of convnext.preprocess_input is integers
+  Note: The outputs of convnext.preprocess_input are integers
+
+Results:
+
+class                   probability
+African_elephant	      9.256576538085938
+tusker	                8.995600700378418
+Indian_elephant	        3.198961019515991
+
 */
 
 IMPORT Python3 AS Python;
@@ -19,9 +27,6 @@ kString := iTypes.kString;
 kStrType := iTypes.kStrType;
 t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
-
-mdef := 'weights="imagenet"';
-STRING modName := 'ConvNeXtLarge';
 
 // load the test data, an image of a elephant
 imageRecord := RECORD
@@ -69,7 +74,8 @@ x := Tensor.R4.MakeTensor([0,224,224,3], x3);
 
 // load the model
 s := GNNI.GetSession(1);
-mod := GNNI.DefineKAModel(s, modName, mdef);
+ldef := ['''applications.convnext.ConvNeXtLarge(weights = "imagenet")'''];
+mod := GNNI.DefineModel(s, ldef);
 
 // Predict 
 preds_tens := GNNI.Predict(mod, x);
@@ -88,10 +94,8 @@ DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3)
     assert 1 == 0, 'tensorflow not found'
   import numpy as np
   predsNp = np.zeros((1, 1000))
-  i = 0
   for pred in preds:
-    predsNp[0, i] = pred[1]
-    i = i + 1
+    predsNp[0, pred[0][1]-1] = pred[1]
   res = decode_predictions(predsNp, top=topK)[0]
   ret = []
   for i in range(topK):
@@ -100,12 +104,3 @@ DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3)
 ENDEMBED;
 
 OUTPUT(decodePredictions(preds), NAMED('predictions'));
-
-/*
-Results:
-
-class                   probability
-African_elephant	      9.256576538085938
-tusker	                8.995600700378418
-Indian_elephant	        3.198961019515991
-*/

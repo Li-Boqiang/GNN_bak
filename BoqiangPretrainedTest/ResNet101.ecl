@@ -2,6 +2,14 @@
 About this test:
   Test the usability of Pre-trained Model ResNet101.
   Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet/ResNet101
+  Input shape = (224, 224, 3) 
+
+Results:
+
+class                     probability
+tusker	                  0.5420303344726562
+African_elephant	        0.4519823491573334
+Indian_elephant	          0.005612429231405258
 */
 
 
@@ -89,10 +97,8 @@ DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3)
     assert 1 == 0, 'tensorflow not found'
   import numpy as np
   predsNp = np.zeros((1, 1000))
-  i = 0
   for pred in preds:
-    predsNp[0, i] = pred[1]
-    i = i + 1
+    predsNp[0, pred[0][1]-1] = pred[1]
   res = decode_predictions(predsNp, top=topK)[0]
   ret = []
   for i in range(topK):
@@ -105,10 +111,5 @@ OUTPUT(decodePredictions(preds), NAMED('predictions'));
 
 /*
 
-Results:
 
-class                     probability
-tusker	                  0.5420303344726562
-African_elephant	        0.4519823491573334
-Indian_elephant	          0.005612429231405258
 */
