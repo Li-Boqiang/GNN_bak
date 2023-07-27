@@ -37,9 +37,7 @@ s := GNNI.GetSession(0);
 GPU := GNNI.isGPUAvailable();
 SEQUENTIAL(OUTPUT(s, NAMED('s')),
            OUTPUT(GPU, NAMED('isGPUAvailable')));
-// OUTPUT(s, NAMED('s'));
 
-// OUTPUT(GPU, NAMED('isGPUAvailable'));
 
 mod := GNNI.DefineModel(s, ldef, compileDef);
 

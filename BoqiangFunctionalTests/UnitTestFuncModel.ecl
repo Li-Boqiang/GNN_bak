@@ -85,25 +85,24 @@ mod2 := GNNI.SetWeights(mod, NewWeights);
 wts2 := GNNI.GetWeights(mod2);
 OUTPUT(wts2, NAMED('SetWeights'));
 
-fullModel := GNNI.getModel(mod2);
-OUTPUT(fullModel, NAMED('fullModel'));
+// Need help
+// OUTPUT(IF(wts2 = NewWeights, 'Correct', 'Wrong'), NAMED('setWeight_Test'));
 
-mod3 := GNNI.setModel(s, fullModel);
-OUTPUT(mod3, NAMED('mod3'));
+mod2FullModel := GNNI.getModel(mod2);
+OUTPUT(mod2FullModel, NAMED('mod2FullModel'));
 
-mod3Summary := GNNI.getSummary(mod3);
-OUTPUT(mod3Summary, NAMED('mod3Summary'));
+mod3 := GNNI.setModel(s, mod2FullModel);
+mod3FullModel := GNNI.getModel(mod3);
+OUTPUT(IF(mod2FullModel = mod3FullModel, 'Pass', 'Fail'), NAMED('getModel_setModel_Test'));
 
 wts3 := GNNI.GetWeights(mod3);
 
-STRING IncorrectResult(INTEGER Expected, INTEGER Result) := FUNCTION
-  RETURN 'Expected: ' + Expected + ' Result: ' + Result;
-END;
+OUTPUT(IF(wts2 = wts3, 'Pass', 'Fail'), NAMED('getWeight_Test'));
 
-OUTPUT(IF(wts2 = wts3, 'Correct', 'Wrong'), NAMED('Test2'));
+STRING mod2JSON := GNNI.ToJSON(mod2);
+STRING mod3JSON := GNNI.ToJSON(mod3);
+OUTPUT(IF(mod2JSON = mod3JSON, 'Pass', 'Fail'), NAMED('ToJSON_Test'));
 
-
-// get mod3 's weights and compare with weights2
-// get json and compare 
-
-// compare the results
+mod4 := GNNI.FromJSON(s, mod3JSON);
+STRING mod4JSON := GNNI.ToJSON(mod4);
+OUTPUT(IF(mod3JSON = mod4JSON, 'Pass', 'Fail'), NAMED('FromJSON_Test'));

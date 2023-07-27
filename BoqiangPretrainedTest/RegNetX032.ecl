@@ -1,15 +1,15 @@
 /*
 About this test:
-  Test the usability of Pre-trained Model EfficientNetB6.
-  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/efficientnet/EfficientNetB6
-  Input shape = (528, 528, 3) 
-
+  Test the usability of Pre-trained Model RegNetX032.
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/regnet/RegNetX032
+  Input shape = (224, 224, 3) 
+  
 Results:
 
-class                   probability
-tusker	                0.7383787631988525
-African_elephant	      0.1324481666088104
-Indian_elephant	        0.00599764846265316
+class                   score
+tusker	                2.974388122558594
+African_elephant	      2.844413042068481
+Indian_elephant	        0.5570150017738342
 */
 
 IMPORT Python3 AS Python;
@@ -48,9 +48,9 @@ SET OF INTEGER hexToNparry(DATA byte_array):= EMBED(Python)
     assert 1 == 0, 'tensorflow not found'
   bytes_data = bytes(byte_array)
   image = Image.open(io.BytesIO(bytes_data))
-  image = image.resize((528,528))
+  image = image.resize((224,224))
   I_array = np.array(image)
-  I_array = tf.keras.applications.efficientnet.preprocess_input(I_array)
+  I_array = tf.keras.applications.regnet.preprocess_input(I_array)
   return I_array.flatten().tolist()
 ENDEMBED;
 
@@ -66,12 +66,12 @@ END;
 imageNpArray := hexToNparry(imageData[1].image);
 x1 := DATASET(imageNpArray, valueRec);
 x2 := PROJECT(x1, TRANSFORM(idValueRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
-x3 := PROJECT(x2, TRANSFORM(TensData, SELF.indexes := [1, TRUNCATE(LEFT.id/(528*3)) + 1, TRUNCATE(LEFT.id/3)%528 + 1, LEFT.id%3 + 1], SELF.value := LEFT.value));
-x := Tensor.R4.MakeTensor([0,528,528,3], x3);
+x3 := PROJECT(x2, TRANSFORM(TensData, SELF.indexes := [1, TRUNCATE(LEFT.id/(224*3)) + 1, TRUNCATE(LEFT.id/3)%224 + 1, LEFT.id%3 + 1], SELF.value := LEFT.value));
+x := Tensor.R4.MakeTensor([0,224,224,3], x3);
 
 // load the model
 s := GNNI.GetSession(1);
-ldef := ['''applications.efficientnet.EfficientNetB6(weights = "imagenet")'''];
+ldef := ['''applications.regnet.RegNetX032(weights = "imagenet")'''];
 mod := GNNI.DefineModel(s, ldef);
 
 // Predict 
@@ -88,7 +88,7 @@ END;
 // decode predictions
 DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3) := EMBED(Python)
   try:
-    from tensorflow.keras.applications.efficientnet import decode_predictions
+    from tensorflow.keras.applications.regnet import decode_predictions
   except:
     assert 1 == 0, 'tensorflow not found'
   import numpy as np
