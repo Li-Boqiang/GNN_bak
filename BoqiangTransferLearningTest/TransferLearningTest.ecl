@@ -20,8 +20,14 @@ Losses     = 1.857115875701515
 2. Test 2
 Start Time = 131344
 End Time   = 191020
+epoch      = 10
 Losses     = 0.535207177911486
 
+2. Test 3
+Start Time = 33526
+End Time   = 123024
+epoch      = 15
+Losses     = 0.1818407013708231
 
 
 3. Test 3
@@ -61,7 +67,7 @@ TensData := Tensor.R4.TensData;
 
 // Test parameters
 batchSize := 1000;
-numEpochs := 10;
+numEpochs := 1;
 trainToLoss := .0001;
 bsr := .25; // BatchSizeReduction.  1 = no reduction.  .25 = reduction to 25% of original.
 lrr := 1.0;  // Learning Rate Reduction.  1 = no reduction.  .1 = reduction to 10 percent of original.
@@ -76,7 +82,7 @@ SET OF REAL4 get_train_X() := EMBED(Python)
   import numpy as np
   cifar100 = tf.keras.datasets.cifar100
   (x_train, y_train), (x_test, y_test) = cifar100.load_data()
-  # x_train = x_train[:2]
+  x_train = x_train[:2]
   x_train = x_train*1.0/255
   return x_train.flatten().tolist()
 ENDEMBED;
@@ -86,7 +92,7 @@ SET OF REAL4 get_train_Y() := EMBED(Python)
   import numpy as np
   cifar100 = tf.keras.datasets.cifar100
   (x_train, y_train), (x_test, y_test) = cifar100.load_data()
-  # y_train = y_train[:2]
+  y_train = y_train[:2]
   y_one_hot = np.eye(100)[y_train.flatten()]
   res = y_one_hot.flatten().tolist()
   return y_one_hot.flatten().tolist()
@@ -148,10 +154,10 @@ mod_summary := GNNI.getSummary(mod);
 OUTPUT(mod_summary, NAMED('mod_summary'));
 
 // Train model
-mod2 := GNNI.Fit(mod, x, y, batchSize := batchSize, numEpochs := numEpochs,
-                      trainToLoss := trainToLoss, learningRateReduction := lrr,
-                      batchSizeReduction := bsr);
-losses := GNNI.GetLoss(mod2);
+// mod2 := GNNI.Fit(mod, x, y, batchSize := batchSize, numEpochs := numEpochs,
+//                       trainToLoss := trainToLoss, learningRateReduction := lrr,
+//                       batchSizeReduction := bsr);
+// losses := GNNI.GetLoss(mod2);
 
 
 // Evaluate this model
@@ -160,8 +166,9 @@ losses := GNNI.GetLoss(mod2);
 SET OF REAL4 get_test_X() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
-  mnist = tf.keras.datasets.cifar100
+  cifar100 = tf.keras.datasets.cifar100
   (x_train, y_train), (x_test, y_test) = cifar100.load_data()
+  x_test = x_test[:2]
   x_test = x_test*1.0/255
   return x_test.flatten().tolist()
 ENDEMBED;
@@ -169,9 +176,10 @@ ENDEMBED;
 SET OF REAL4 get_test_Y() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
-  mnist = tf.keras.datasets.cifar100
+  cifar100 = tf.keras.datasets.cifar100
   (x_train, y_train), (x_test, y_test) = cifar100.load_data()
-  y_one_hot = np.eye(100)[y_test]
+  y_test = y_test[:2]
+  y_one_hot = np.eye(100)[y_test.flatten()]
   res = y_one_hot.flatten().tolist()
   return y_one_hot.flatten().tolist()
 ENDEMBED;
@@ -194,14 +202,24 @@ y3_test := PROJECT(y2_test, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.i
 
 x_test := Tensor.R4.MakeTensor([0,32,32,3], x3_test);
 y_test := Tensor.R4.MakeTensor([0, 100], y3_test);
+OUTPUT(y_test,NAMED('y_test'));
+OUTPUT(y,NAMED('y'));
 
-metrics := GNNI.EvaluateMod(mod2, x_test, y_test);
-preds := GNNI.Predict(mod2, x_test);
+// metrics := GNNI.EvaluateMod(mod2, x_test, y_test);
+// preds := GNNI.Predict(mod2, x_test);
 
 // OUTPUT results
+// ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('startTime')), 
+//   OUTPUT(mod2, NAMED('mod2')),
+//   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('endTime')),
+//   OUTPUT(losses, NAMED('losses')),
+//   OUTPUT(metrics, NAMED('metrics')),
+//   OUTPUT(preds, NAMED('preds'))]);
+
+metrics := GNNI.EvaluateMod(mod, x_test, y_test);
+preds := GNNI.Predict(mod, x_test);
+
 ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('startTime')), 
-  OUTPUT(mod2, NAMED('mod2')),
   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('endTime')),
-  OUTPUT(losses, NAMED('losses')),
   OUTPUT(metrics, NAMED('metrics')),
   OUTPUT(preds, NAMED('preds'))]);

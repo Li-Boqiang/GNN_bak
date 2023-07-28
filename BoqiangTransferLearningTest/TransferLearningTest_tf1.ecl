@@ -10,16 +10,16 @@ Tensorflow version = 2.12
 Use GPU
 
 1. Test 1
-Start Time = 102243
-End Time   = 125855
-epoch      = 5
-Losses     = 1.857115875701515
+Start Time = 
+End Time   = 
+epoch      = 
+Losses     = 
 
 
 
 2. Test 2
-Start Time = 131344
-End Time   = 191020
+Start Time = 232146
+End Time   = 32837
 Losses     = 0.535207177911486
 
 
@@ -154,7 +154,7 @@ losses := GNNI_tf1.GetLoss(mod2);
 SET OF REAL4 get_test_X() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
-  mnist = tf.keras.datasets.cifar100
+  cifar100 = tf.keras.datasets.cifar100
   (x_train, y_train), (x_test, y_test) = cifar100.load_data()
   x_test = x_test*1.0/255
   return x_test.flatten().tolist()
@@ -163,7 +163,7 @@ ENDEMBED;
 SET OF REAL4 get_test_Y() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
-  mnist = tf.keras.datasets.cifar100
+  cifar100 = tf.keras.datasets.cifar100
   (x_train, y_train), (x_test, y_test) = cifar100.load_data()
   y_one_hot = np.eye(100)[y_test]
   res = y_one_hot.flatten().tolist()

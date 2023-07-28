@@ -96,10 +96,10 @@ s := GNNI.GetSession(1);
 mod := GNNI.DefineModel(s, ldef, compileDef);
 
 // Train model
-mod2 := GNNI.Fit(mod, x, y, batchSize := batchSize, numEpochs := numEpochs,
-                      trainToLoss := trainToLoss, learningRateReduction := lrr,
-                      batchSizeReduction := bsr);
-losses := GNNI.GetLoss(mod2);
+// mod2 := GNNI.Fit(mod, x, y, batchSize := batchSize, numEpochs := numEpochs,
+//                       trainToLoss := trainToLoss, learningRateReduction := lrr,
+//                       batchSizeReduction := bsr);
+// losses := GNNI.GetLoss(mod2);
 
 // Evaluate this model
 
@@ -140,14 +140,14 @@ y3_test := PROJECT(y2_test, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.i
 x_test := Tensor.R4.MakeTensor([0,28,28], x3_test);
 y_test := Tensor.R4.MakeTensor([0, 10], y3_test);
 
-metrics := GNNI.EvaluateMod(mod2, x_test, y_test);
-preds := GNNI.Predict(mod2, x_test);
+metrics := GNNI.EvaluateMod(mod, x_test, y_test);
+preds := GNNI.Predict(mod, x_test);
 
 // OUTPUT results
 ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('startTime')), 
-  OUTPUT(mod2, NAMED('mod2')),
+  // OUTPUT(mod2, NAMED('mod2')),
   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('endTime')),
-  OUTPUT(losses, NAMED('losses')),
+  // OUTPUT(losses, NAMED('losses')),
   OUTPUT(metrics, NAMED('metrics')),
   OUTPUT(preds, NAMED('preds'))]);
 
