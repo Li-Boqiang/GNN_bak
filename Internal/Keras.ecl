@@ -44,6 +44,7 @@ EXPORT Keras := MODULE
     # Function to initialize all the global variables and functions.  This should
     # only be called once.
     import tensorflow as tf # V2.x
+    tf.compat.v1.enable_v2_behavior()
     def initGlobals():
       try:
         import tensorflow as tf # V2.x
