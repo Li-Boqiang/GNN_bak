@@ -50,7 +50,7 @@ IMPORT $.^ AS GNN;
 IMPORT GNN.Tensor;
 IMPORT GNN.Internal.Types AS iTypes;
 IMPORT GNN.Types;
-IMPORT GNN.GNNI;
+IMPORT GNN.GNNI_tf1;
 IMPORT GNN.Internal AS Int;
 IMPORT STD;
 
@@ -65,10 +65,6 @@ numEpochs := 10;
 trainToLoss := .0001;
 bsr := .25; // BatchSizeReduction.  1 = no reduction.  .25 = reduction to 25% of original.
 lrr := 1.0;  // Learning Rate Reduction.  1 = no reduction.  .1 = reduction to 10 percent of original.
-
-// Test GPU
-GPU := GNNI.isGPUAvailable();
-OUTPUT(GPU, NAMED('isGPUAvailable'));
 
 // Get training data
 SET OF REAL4 get_train_X() := EMBED(Python)
@@ -122,7 +118,7 @@ y := Tensor.R4.MakeTensor([0, 100], y3);
 
 // Define model
 
-s := GNNI.GetSession(1);
+s := GNNI_tf1.GetSession(1);
 
 ldef := ['''layers.UpSampling2D(size=(7, 7), interpolation='bilinear', input_shape=(32, 32, 3))''',
           '''applications.resnet50.ResNet50(include_top = False, weights = "imagenet")''',
@@ -142,16 +138,14 @@ mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
                                         SELF.id  := COUNTER,
                                         SELF.text := ldef[COUNTER]));  
 
-mod := GNNI.DefineModel(s, ldef, compileDef);
-mod_summary := GNNI.getSummary(mod);
+mod := GNNI_tf1.DefineModel(s, ldef, compileDef);
 
-OUTPUT(mod_summary, NAMED('mod_summary'));
 
 // Train model
-mod2 := GNNI.Fit(mod, x, y, batchSize := batchSize, numEpochs := numEpochs,
+mod2 := GNNI_tf1.Fit(mod, x, y, batchSize := batchSize, numEpochs := numEpochs,
                       trainToLoss := trainToLoss, learningRateReduction := lrr,
                       batchSizeReduction := bsr);
-losses := GNNI.GetLoss(mod2);
+losses := GNNI_tf1.GetLoss(mod2);
 
 
 // Evaluate this model
@@ -195,8 +189,8 @@ y3_test := PROJECT(y2_test, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.i
 x_test := Tensor.R4.MakeTensor([0,32,32,3], x3_test);
 y_test := Tensor.R4.MakeTensor([0, 100], y3_test);
 
-metrics := GNNI.EvaluateMod(mod2, x_test, y_test);
-preds := GNNI.Predict(mod2, x_test);
+metrics := GNNI_tf1.EvaluateMod(mod2, x_test, y_test);
+preds := GNNI_tf1.Predict(mod2, x_test);
 
 // OUTPUT results
 ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('startTime')), 

@@ -55,12 +55,24 @@ mod2 := GNNI.SetWeights(mod, NewWeights);
 wts2 := GNNI.GetWeights(mod2);
 OUTPUT(wts2, NAMED('SetWeights'));
 
-fullModel := GNNI.getModel(mod2);
-OUTPUT(fullModel, NAMED('fullModel'));
+mod2FullModel := GNNI.getModel(mod2);
+OUTPUT(mod2FullModel, NAMED('fullModel'));
 
-mod3 := GNNI.setModel(s, fullModel);
-OUTPUT(mod3, NAMED('mod3'));
+mod3 := GNNI.setModel(s, mod2FullModel);
 
-mod3Summary := GNNI.getSummary(mod3);
-OUTPUT(mod3Summary, NAMED('mod3Summary'));
+mod3FullModel := GNNI.getModel(mod3);
+OUTPUT(IF(mod2FullModel = mod3FullModel, 'Pass', 'Fail'), NAMED('getModel_setModel_Test'));
+
+wts3 := GNNI.GetWeights(mod3);
+
+OUTPUT(IF(wts2 = wts3, 'Pass', 'Fail'), NAMED('getWeight_Test'));
+
+STRING mod2JSON := GNNI.ToJSON(mod2);
+STRING mod3JSON := GNNI.ToJSON(mod3);
+OUTPUT(IF(mod2JSON = mod3JSON, 'Pass', 'Fail'), NAMED('ToJSON_Test'));
+
+mod4 := GNNI.FromJSON(s, mod3JSON);
+STRING mod4JSON := GNNI.ToJSON(mod4);
+OUTPUT(IF(mod3JSON = mod4JSON, 'Pass', 'Fail'), NAMED('FromJSON_Test'));
+
 

@@ -301,6 +301,7 @@ EXPORT Keras_tf1 := MODULE
     except:
       import tensorflow as tf # V 1.x
     from tensorflow.keras import layers
+    from tensorflow.compat.v1.keras import applications
     global nextModId
     try:
       # Allocate a new modelId

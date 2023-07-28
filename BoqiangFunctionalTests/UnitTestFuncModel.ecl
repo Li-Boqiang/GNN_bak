@@ -77,9 +77,10 @@ OUTPUT(modSummary, NAMED('modSummary'));
 wts := GNNI.GetWeights(mod);
 OUTPUT(wts, NAMED('InitWeights'));
 
-NewWeights := PROJECT(wts, TRANSFORM(RECORDOF(LEFT), SELF.denseData := IF(LEFT.wi = 1, 
-                [.5, .5, .5] + LEFT.densedata[4..], LEFT.densedata), SELF := LEFT));
-
+// DATASET(t_Tensor) NewWeights := PROJECT(wts, TRANSFORM(RECORDOF(LEFT), SELF.denseData := IF(LEFT.wi = 1, 
+//                 [.5, .5, .5] + LEFT.densedata[4..], LEFT.densedata), SELF := LEFT));
+NewWeights := PROJECT(wts, TRANSFORM(t_Tensor, SELF := LEFT));
+// NewWeights := wts;
 OUTPUT(NewWeights, NAMED('NewWeights'));
 mod2 := GNNI.SetWeights(mod, NewWeights);
 wts2 := GNNI.GetWeights(mod2);
@@ -87,6 +88,7 @@ OUTPUT(wts2, NAMED('SetWeights'));
 
 // Need help
 // OUTPUT(IF(wts2 = NewWeights, 'Correct', 'Wrong'), NAMED('setWeight_Test'));
+// JOIN these two and compare the value(should be equal) and the # of record (different)
 
 mod2FullModel := GNNI.getModel(mod2);
 OUTPUT(mod2FullModel, NAMED('mod2FullModel'));
