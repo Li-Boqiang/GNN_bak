@@ -44,7 +44,6 @@ EXPORT Keras := MODULE
     # Function to initialize all the global variables and functions.  This should
     # only be called once.
     import tensorflow as tf # V2.x
-    assert 1==0, tf.executing_eagerly()
     def initGlobals():
       try:
         import tensorflow as tf # V2.x
