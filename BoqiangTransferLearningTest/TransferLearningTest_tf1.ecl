@@ -20,29 +20,15 @@ Losses     =
 2. Test 2
 Start Time = 232146
 End Time   = 32837
+epoch      = 10
 Losses     = 0.535207177911486
 
-
-
 3. Test 3
-GPU        = unavailable
-# node     = 1
-Start Time = 72030
-End Time   = 72738
-Losses     = 0.05964114850697418
-Metrics    = 
-  Loss     = 0.03408002480864525
-  Acc      = 0.9901000261306763
+Start Time = 80344
+End Time   = 124615
+epoch      = 15
+Losses     = 0.1917475032706906
 
-4. Test 4
-GPU        = unavailable
-# node     = 1
-Start Time = 73255
-End Time   = 73545
-Losses     = 0.06493064113116513
-Metrics    = 
-  Loss     = 0.0379653237760067
-  Acc      = 0.9911999702453613
 */
 
 IMPORT Python3 AS Python;
@@ -61,13 +47,13 @@ TensData := Tensor.R4.TensData;
 
 // Test parameters
 batchSize := 1000;
-numEpochs := 10;
+numEpochs := 15;
 trainToLoss := .0001;
 bsr := .25; // BatchSizeReduction.  1 = no reduction.  .25 = reduction to 25% of original.
 lrr := 1.0;  // Learning Rate Reduction.  1 = no reduction.  .1 = reduction to 10 percent of original.
 
 // Get training data
-SET OF REAL4 get_train_X() := EMBED(Python)
+SET OF REAL get_train_X() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
   cifar100 = tf.keras.datasets.cifar100
@@ -77,7 +63,7 @@ SET OF REAL4 get_train_X() := EMBED(Python)
   return x_train.flatten().tolist()
 ENDEMBED;
 
-SET OF REAL4 get_train_Y() := EMBED(Python)
+SET OF REAL get_train_Y() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
   cifar100 = tf.keras.datasets.cifar100
@@ -93,12 +79,12 @@ train_Y := get_train_Y();
 
 
 t1Rec := RECORD
-  REAL4 value;
+  REAL value;
 END;
 
 intpuRec := RECORD
   UNSIGNED8 id;
-  REAL4 value;
+  REAL value;
 END;
 
 x1 := DATASET(train_X, t1Rec);
@@ -134,10 +120,6 @@ compileDef := '''compile(optimizer=tf.keras.optimizers.RMSprop(epsilon=1e-08),
                 loss='categorical_crossentropy', metrics=['acc'])
               ''';
 
-mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
-                                        SELF.id  := COUNTER,
-                                        SELF.text := ldef[COUNTER]));  
-
 mod := GNNI_tf1.DefineModel(s, ldef, compileDef);
 
 
@@ -151,21 +133,23 @@ losses := GNNI_tf1.GetLoss(mod2);
 // Evaluate this model
 
 // Get the testing set
-SET OF REAL4 get_test_X() := EMBED(Python)
+SET OF REAL get_test_X() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
   cifar100 = tf.keras.datasets.cifar100
   (x_train, y_train), (x_test, y_test) = cifar100.load_data()
+  x_test = x_test[:1000]
   x_test = x_test*1.0/255
   return x_test.flatten().tolist()
 ENDEMBED;
 
-SET OF REAL4 get_test_Y() := EMBED(Python)
+SET OF REAL get_test_Y() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
   cifar100 = tf.keras.datasets.cifar100
   (x_train, y_train), (x_test, y_test) = cifar100.load_data()
-  y_one_hot = np.eye(100)[y_test]
+  y_test = y_test[:1000]
+  y_one_hot = np.eye(100)[y_test.flatten()]
   res = y_one_hot.flatten().tolist()
   return y_one_hot.flatten().tolist()
 ENDEMBED;

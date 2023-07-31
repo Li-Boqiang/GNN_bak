@@ -1,15 +1,16 @@
 /*
 About this test:
-  Test the usability of Pre-trained Model Xception. 
-  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/xception
-  Input shape = (299,299,3)
+  Test the usability of Pre-trained Model Xception.
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/xception/Xception
+  Input shape = (299, 299, 3) 
 
 Results:
 
 class                   probability
-tusker	                0.483847588300705
-African_elephant	      0.4623934328556061
-Indian_elephant	        0.005043064709752798
+tusker	                0.4836929142475128
+African_elephant	      0.462538868188858
+Indian_elephant	        0.005042423959821463
+
 */
 
 IMPORT Python3 AS Python;
@@ -26,9 +27,6 @@ kStrType := iTypes.kStrType;
 t_Tensor := Tensor.R4.t_Tensor;
 TensData := Tensor.R4.TensData;
 
-mdef := 'weights="imagenet"';
-STRING modName := 'Xception';
-
 // load the test data, an image of a elephant
 imageRecord := RECORD
   STRING filename;
@@ -42,7 +40,7 @@ OUTPUT(imageData, NAMED('elephant'));
 
 result := (STRING)(imageData[1].image);
 
-SET OF REAL4 hexToNparry(DATA byte_array):= EMBED(Python)
+SET OF REAL hexToNparry(DATA byte_array):= EMBED(Python)
   from PIL import Image
   import numpy as np
   import io
@@ -59,12 +57,12 @@ SET OF REAL4 hexToNparry(DATA byte_array):= EMBED(Python)
 ENDEMBED;
 
 valueRec := RECORD
-  REAL4 value;
+  REAL value;
 END;
 
 idValueRec := RECORD
   UNSIGNED8 id;
-  REAL4 value;
+  REAL value;
 END;
 
 imageNpArray := hexToNparry(imageData[1].image);
@@ -75,7 +73,8 @@ x := Tensor.R4.MakeTensor([0,299,299,3], x3);
 
 // load the model
 s := GNNI.GetSession(1);
-mod := GNNI.DefineKAModel(s, modName, mdef);
+ldef := ['''applications.xception.Xception(weights = "imagenet")'''];
+mod := GNNI.DefineModel(s, ldef);
 
 // Predict 
 preds_tens := GNNI.Predict(mod, x);
@@ -104,7 +103,3 @@ DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3)
 ENDEMBED;
 
 OUTPUT(decodePredictions(preds), NAMED('predictions'));
-
-/*
-
-*/

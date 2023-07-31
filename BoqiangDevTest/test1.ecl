@@ -52,10 +52,7 @@ compileDef := '''compile(optimizer=tf.keras.optimizers.experimental.SGD(learning
 //               ''';
 
 OUTPUT(ldef, NAMED('ldef')); 
-mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
-                                        SELF.id  := COUNTER,
-                                        SELF.text := ldef[COUNTER]));  
-OUTPUT(mdef1, NAMED('mdef_test'));                                             
+                                           
 OUTPUT(compileDef, NAMED('compileDef'));          
 s := GNNI.GetSession();
 OUTPUT(s, NAMED('s'));

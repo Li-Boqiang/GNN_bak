@@ -46,7 +46,6 @@ ENDEMBED;
 train_X := get_train_X();
 train_Y := get_train_Y();
 
-
 t1Rec := RECORD
   REAL4 value;
 END;
@@ -61,10 +60,8 @@ y1 := DATASET(train_Y, t1Rec);
 x2 := PROJECT(x1, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
 y2 := PROJECT(y1, TRANSFORM(intpuRec, SELF.id := COUNTER - 1, SELF.value := LEFT.value));
 
-
 x3 := PROJECT(x2, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/784) + 1, TRUNCATE(LEFT.id%784/28) + 1, LEFT.id%28 + 1, 1], SELF.value := LEFT.value));
 y3 := PROJECT(y2, TRANSFORM(TensData, SELF.indexes := [TRUNCATE(LEFT.id/10) + 1, LEFT.id%10 + 1], SELF.value := LEFT.value));
-
 
 x := Tensor.R4.MakeTensor([0, 28, 28, 1], x3);
 y := Tensor.R4.MakeTensor([0, 10], y3);
@@ -87,9 +84,6 @@ compileDef := '''compile(optimizer=tf.keras.optimizers.RMSprop(epsilon=1e-08),
                 loss='categorical_crossentropy', metrics=['accuracy'])
               ''';
 
-mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
-                                        SELF.id  := COUNTER,
-                                        SELF.text := ldef[COUNTER]));  
 s := GNNI_tf1.GetSession(1);
 mod := GNNI_tf1.DefineModel(s, ldef, compileDef);
 

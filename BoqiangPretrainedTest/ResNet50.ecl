@@ -7,9 +7,10 @@ About this test:
 Results:
 
 class                   probability
-African_elephant	      0.676945149898529
-tusker	                0.2975042462348938
-Indian_elephant	        0.0226921159774065
+African_elephant	      0.6770505905151367
+tusker	                0.2974019646644592
+Indian_elephant	        0.02268840186297894
+
 */
 
 IMPORT Python3 AS Python;
@@ -39,7 +40,7 @@ OUTPUT(imageData, NAMED('elephant'));
 
 result := (STRING)(imageData[1].image);
 
-SET OF REAL4 hexToNparry(DATA byte_array):= EMBED(Python)
+SET OF REAL hexToNparry(DATA byte_array):= EMBED(Python)
   from PIL import Image
   import numpy as np
   import io
@@ -56,12 +57,12 @@ SET OF REAL4 hexToNparry(DATA byte_array):= EMBED(Python)
 ENDEMBED;
 
 valueRec := RECORD
-  REAL4 value;
+  REAL value;
 END;
 
 idValueRec := RECORD
   UNSIGNED8 id;
-  REAL4 value;
+  REAL value;
 END;
 
 imageNpArray := hexToNparry(imageData[1].image);
@@ -102,7 +103,3 @@ DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3)
 ENDEMBED;
 
 OUTPUT(decodePredictions(preds), NAMED('predictions'));
-
-/*
-
-*/

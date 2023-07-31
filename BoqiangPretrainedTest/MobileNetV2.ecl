@@ -55,12 +55,12 @@ SET OF REAL hexToNparry(DATA byte_array):= EMBED(Python)
 ENDEMBED;
 
 valueRec := RECORD
-  REAL4 value;
+  REAL value;
 END;
 
 idValueRec := RECORD
   UNSIGNED8 id;
-  REAL4 value;
+  REAL value;
 END;
 
 imageNpArray := hexToNparry(imageData[1].image);

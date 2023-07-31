@@ -77,7 +77,7 @@ GPU := GNNI.isGPUAvailable();
 OUTPUT(GPU, NAMED('isGPUAvailable'));
 
 // Get training data
-SET OF REAL4 get_train_X() := EMBED(Python)
+SET OF REAL get_train_X() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
   cifar100 = tf.keras.datasets.cifar100
@@ -87,7 +87,7 @@ SET OF REAL4 get_train_X() := EMBED(Python)
   return x_train.flatten().tolist()
 ENDEMBED;
 
-SET OF REAL4 get_train_Y() := EMBED(Python)
+SET OF REAL get_train_Y() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
   cifar100 = tf.keras.datasets.cifar100
@@ -103,12 +103,12 @@ train_Y := get_train_Y();
 
 
 t1Rec := RECORD
-  REAL4 value;
+  REAL value;
 END;
 
 intpuRec := RECORD
   UNSIGNED8 id;
-  REAL4 value;
+  REAL value;
 END;
 
 x1 := DATASET(train_X, t1Rec);
@@ -141,12 +141,8 @@ ldef := ['''layers.UpSampling2D(size=(7, 7), interpolation='bilinear', input_sha
 
 
 compileDef := '''compile(optimizer=tf.keras.optimizers.RMSprop(epsilon=1e-08), 
-                loss='categorical_crossentropy', metrics=['acc'])
+                loss='categorical_crossentropy', metrics=[tf.keras.metrics.CategoricalAccuracy()])
               ''';
-
-mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
-                                        SELF.id  := COUNTER,
-                                        SELF.text := ldef[COUNTER]));  
 
 mod := GNNI.DefineModel(s, ldef, compileDef);
 mod_summary := GNNI.getSummary(mod);
@@ -154,31 +150,31 @@ mod_summary := GNNI.getSummary(mod);
 OUTPUT(mod_summary, NAMED('mod_summary'));
 
 // Train model
-// mod2 := GNNI.Fit(mod, x, y, batchSize := batchSize, numEpochs := numEpochs,
-//                       trainToLoss := trainToLoss, learningRateReduction := lrr,
-//                       batchSizeReduction := bsr);
-// losses := GNNI.GetLoss(mod2);
+mod2 := GNNI.Fit(mod, x, y, batchSize := batchSize, numEpochs := numEpochs,
+                      trainToLoss := trainToLoss, learningRateReduction := lrr,
+                      batchSizeReduction := bsr);
+losses := GNNI.GetLoss(mod2);
 
 
 // Evaluate this model
 
 // Get the testing set
-SET OF REAL4 get_test_X() := EMBED(Python)
+SET OF REAL get_test_X() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
   cifar100 = tf.keras.datasets.cifar100
   (x_train, y_train), (x_test, y_test) = cifar100.load_data()
-  x_test = x_test[:2]
+  x_test = x_test[:1000]
   x_test = x_test*1.0/255
   return x_test.flatten().tolist()
 ENDEMBED;
 
-SET OF REAL4 get_test_Y() := EMBED(Python)
+SET OF REAL get_test_Y() := EMBED(Python)
   import tensorflow as tf
   import numpy as np
   cifar100 = tf.keras.datasets.cifar100
   (x_train, y_train), (x_test, y_test) = cifar100.load_data()
-  y_test = y_test[:2]
+  y_test = y_test[:1000]
   y_one_hot = np.eye(100)[y_test.flatten()]
   res = y_one_hot.flatten().tolist()
   return y_one_hot.flatten().tolist()
@@ -205,21 +201,13 @@ y_test := Tensor.R4.MakeTensor([0, 100], y3_test);
 OUTPUT(y_test,NAMED('y_test'));
 OUTPUT(y,NAMED('y'));
 
-// metrics := GNNI.EvaluateMod(mod2, x_test, y_test);
-// preds := GNNI.Predict(mod2, x_test);
+metrics := GNNI.EvaluateMod(mod2, x_test, y_test);
+preds := GNNI.Predict(mod2, x_test);
 
 // OUTPUT results
-// ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('startTime')), 
-//   OUTPUT(mod2, NAMED('mod2')),
-//   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('endTime')),
-//   OUTPUT(losses, NAMED('losses')),
-//   OUTPUT(metrics, NAMED('metrics')),
-//   OUTPUT(preds, NAMED('preds'))]);
-
-metrics := GNNI.EvaluateMod(mod, x_test, y_test);
-preds := GNNI.Predict(mod, x_test);
-
 ORDERED([OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('startTime')), 
+  OUTPUT(mod2, NAMED('mod2')),
   OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('endTime')),
+  OUTPUT(losses, NAMED('losses')),
   OUTPUT(metrics, NAMED('metrics')),
   OUTPUT(preds, NAMED('preds'))]);

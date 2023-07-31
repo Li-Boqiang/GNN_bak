@@ -1,15 +1,16 @@
 /*
 About this test:
-  Test the usability of Pre-trained Model ResNet101.
-  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet/ResNet101
+  Test the usability of Pre-trained Model VGG19.
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/vgg19/VGG19
   Input shape = (224, 224, 3) 
 
 Results:
 
 class                   probability
-tusker	                0.5418903231620789
-African_elephant	      0.4521194994449615
-Indian_elephant	        0.005615042988210917
+African_elephant	      0.7482938170433044
+tusker	                0.2391754537820816
+Indian_elephant	        0.01243972312659025
+
 */
 
 IMPORT Python3 AS Python;
@@ -51,7 +52,7 @@ SET OF REAL hexToNparry(DATA byte_array):= EMBED(Python)
   image = Image.open(io.BytesIO(bytes_data))
   image = image.resize((224,224))
   I_array = np.array(image)
-  I_array = tf.keras.applications.resnet.preprocess_input(I_array)
+  I_array = tf.keras.applications.vgg19.preprocess_input(I_array)
   return I_array.flatten().tolist()
 ENDEMBED;
 
@@ -72,7 +73,7 @@ x := Tensor.R4.MakeTensor([0,224,224,3], x3);
 
 // load the model
 s := GNNI.GetSession(1);
-ldef := ['''applications.resnet.ResNet101(weights = "imagenet")'''];
+ldef := ['''applications.vgg19.VGG19(weights = "imagenet")'''];
 mod := GNNI.DefineModel(s, ldef);
 
 // Predict 
@@ -87,7 +88,7 @@ END;
 // decode predictions
 DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3) := EMBED(Python)
   try:
-    from tensorflow.keras.applications.resnet import decode_predictions
+    from tensorflow.keras.applications.vgg19 import decode_predictions
   except:
     assert 1 == 0, 'tensorflow not found'
   import numpy as np

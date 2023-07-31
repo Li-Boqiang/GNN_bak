@@ -1,15 +1,16 @@
 /*
 About this test:
-  Test the usability of Pre-trained Model ResNet101.
-  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet/ResNet101
+  Test the usability of Pre-trained Model RegNetY016.
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/regnet/RegNetY016
   Input shape = (224, 224, 3) 
-
+  
 Results:
 
-class                   probability
-tusker	                0.5418903231620789
-African_elephant	      0.4521194994449615
-Indian_elephant	        0.005615042988210917
+class                   score
+African_elephant	      3.298848867416382
+tusker	                3.117548704147339
+Indian_elephant	        0.2909635305404663
+
 */
 
 IMPORT Python3 AS Python;
@@ -35,11 +36,10 @@ imageRecord := RECORD
 END;
 
 imageData := DATASET('~le::elephant',imageRecord,FLAT);
-OUTPUT(imageData, NAMED('elephant'));
 
 result := (STRING)(imageData[1].image);
 
-SET OF REAL hexToNparry(DATA byte_array):= EMBED(Python)
+SET OF INTEGER hexToNparry(DATA byte_array):= EMBED(Python)
   from PIL import Image
   import numpy as np
   import io
@@ -51,17 +51,17 @@ SET OF REAL hexToNparry(DATA byte_array):= EMBED(Python)
   image = Image.open(io.BytesIO(bytes_data))
   image = image.resize((224,224))
   I_array = np.array(image)
-  I_array = tf.keras.applications.resnet.preprocess_input(I_array)
+  I_array = tf.keras.applications.regnet.preprocess_input(I_array)
   return I_array.flatten().tolist()
 ENDEMBED;
 
 valueRec := RECORD
-  REAL value;
+  INTEGER value;
 END;
 
 idValueRec := RECORD
   UNSIGNED8 id;
-  REAL value;
+  INTEGER value;
 END;
 
 imageNpArray := hexToNparry(imageData[1].image);
@@ -72,12 +72,14 @@ x := Tensor.R4.MakeTensor([0,224,224,3], x3);
 
 // load the model
 s := GNNI.GetSession(1);
-ldef := ['''applications.resnet.ResNet101(weights = "imagenet")'''];
+ldef := ['''applications.regnet.RegNetY016(weights = "imagenet")'''];
 mod := GNNI.DefineModel(s, ldef);
 
 // Predict 
 preds_tens := GNNI.Predict(mod, x);
 preds := Tensor.R4.GetData(preds_tens);
+
+OUTPUT(preds, NAMED('preds'));
 
 predictRes := RECORD
   STRING class;
@@ -87,7 +89,7 @@ END;
 // decode predictions
 DATASET(predictRes) decodePredictions(DATASET(TensData) preds, INTEGER topK = 3) := EMBED(Python)
   try:
-    from tensorflow.keras.applications.resnet import decode_predictions
+    from tensorflow.keras.applications.regnet import decode_predictions
   except:
     assert 1 == 0, 'tensorflow not found'
   import numpy as np

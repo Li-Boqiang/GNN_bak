@@ -44,9 +44,6 @@ compileDef := '''compile(optimizer=tf.keras.optimizers.experimental.SGD(learning
 
 
 OUTPUT(ldef, NAMED('ldef')); 
-mdef1 := DATASET(COUNT(ldef), TRANSFORM(kString, SELF.typ := kStrType.layer,
-                                        SELF.id  := COUNTER,
-                                        SELF.text := ldef[COUNTER]));  
 s := GNNI.GetSession(1);
 mod := GNNI.DefineModel(s, ldef, compileDef);
 

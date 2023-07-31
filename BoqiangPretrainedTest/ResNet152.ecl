@@ -1,15 +1,15 @@
 /*
 About this test:
-  Test the usability of Pre-trained Model ResNet101.
-  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet/ResNet101
+  Test the usability of Pre-trained Model ResNet152.
+  Reference: https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet/ResNet152
   Input shape = (224, 224, 3) 
 
 Results:
 
 class                   probability
-tusker	                0.5418903231620789
-African_elephant	      0.4521194994449615
-Indian_elephant	        0.005615042988210917
+African_elephant	      0.7168868184089661
+tusker	                0.27267986536026
+Indian_elephant	        0.01028963271528482
 */
 
 IMPORT Python3 AS Python;
@@ -72,7 +72,7 @@ x := Tensor.R4.MakeTensor([0,224,224,3], x3);
 
 // load the model
 s := GNNI.GetSession(1);
-ldef := ['''applications.resnet.ResNet101(weights = "imagenet")'''];
+ldef := ['''applications.resnet.ResNet152(weights = "imagenet")'''];
 mod := GNNI.DefineModel(s, ldef);
 
 // Predict 

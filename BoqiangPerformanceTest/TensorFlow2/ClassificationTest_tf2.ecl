@@ -1,3 +1,29 @@
+/*
+About this test:
+    Test the performance of training in TensorFlow 2.x
+    Add more neurons in ldef to increase training time.
+
+Test Results:
+
+1. 
+Model      = 
+ldef := ['''layers.Dense(256, activation='tanh', input_shape=(5,))''',
+          '''layers.Dense(1024, activation='relu')''',
+          '''layers.Dense(1024, activation='relu')''',
+          '''layers.Dense(10240, activation='relu')''',
+          '''layers.Dense(1024, activation='relu')''',
+          '''layers.Dense(256, activation='relu')''',
+          '''layers.Dense(3, activation='softmax')'''];
+
+Start Time = 25519
+End Time   = 32605
+loss       = 0.02186837473418564
+2. 
+
+3. 
+
+*/
+
 IMPORT Python3 AS Python;
 IMPORT $.^ AS GNN;
 IMPORT GNN.Tensor;
@@ -6,6 +32,8 @@ IMPORT GNN.Types;
 IMPORT GNN.GNNI;
 IMPORT GNN.Internal AS Int;
 IMPORT ML_Core AS mlc;
+IMPORT STD;
+
 kString := iTypes.kString;
 kStrType := iTypes.kStrType;
 NumericField := mlc.Types.NumericField;
@@ -14,18 +42,21 @@ t_Tensor := Tensor.R4.t_Tensor;
 // Prepare training data
 RAND_MAX := POWER(2,32) -1;
 
-
 // Test parameters
-trainCount := 1000;
+trainCount := 10000;
 testCount := 100;
 featureCount := 5;
 classCount := 3;
-numEpochs := 5;
+numEpochs := 10;
 batchSize := 128;
 
-
-ldef := ['''layers.Dense(16, activation='tanh', input_shape=(5,))''',
-          '''layers.Dense(16, activation='relu')''',
+// Add more neurons to increase training time
+ldef := ['''layers.Dense(256, activation='tanh', input_shape=(5,))''',
+          '''layers.Dense(1024, activation='relu')''',
+          '''layers.Dense(1024, activation='relu')''',
+          '''layers.Dense(10240, activation='relu')''',
+          '''layers.Dense(1024, activation='relu')''',
+          '''layers.Dense(256, activation='relu')''',
           '''layers.Dense(3, activation='softmax')'''];
 
 compileDef := '''compile(optimizer=tf.keras.optimizers.experimental.SGD(learning_rate=0.05),
@@ -33,26 +64,12 @@ compileDef := '''compile(optimizer=tf.keras.optimizers.experimental.SGD(learning
               metrics=['accuracy'])
               ''';
 
-
-OUTPUT(ldef, NAMED('ldef'));                                          
-OUTPUT(compileDef, NAMED('compileDef'));   
-
-
+OUTPUT(ldef, NAMED('ldef'));  
 s := GNNI.GetSession(1);
-OUTPUT(s, NAMED('s'));
-
 mod := GNNI.DefineModel(s, ldef, compileDef);
-OUTPUT(mod, NAMED('mod'));
-wts := GNNI.GetWeights(mod);
-OUTPUT(wts, NAMED('InitWeights'));
 
-NewWeights := PROJECT(wts, TRANSFORM(RECORDOF(LEFT), SELF.denseData := IF(LEFT.wi = 1, 
-                [.5, .5, .5] + LEFT.densedata[4..], LEFT.densedata), SELF := LEFT));
-
-OUTPUT(NewWeights, NAMED('NewWeights'));
-mod2 := GNNI.SetWeights(mod, NewWeights);
-wts2 := GNNI.GetWeights(mod2);
-OUTPUT(wts2, NAMED('SetWeights'));
+modSummary := GNNI.getSummary(mod);
+OUTPUT(modSummary, NAMED('modSummary')); 
 
 
 trainRec := RECORD
@@ -126,19 +143,20 @@ testY := NORMALIZE(test, classCount, TRANSFORM(NumericField,
 OUTPUT(testX, NAMED('testX'));
 OUTPUT(testY, NAMED('testY'));
 
+mod2 := GNNI.FitNF(mod, trainX, trainY, batchSize := batchSize, numEpochs := numEpochs);
 
-mod3 := GNNI.FitNF(mod, trainX, trainY, batchSize := batchSize, numEpochs := numEpochs);
+losses := GNNI.GetLoss(mod2);
+metrics := GNNI.EvaluateNF(mod2, testX, testY);
+preds := GNNI.PredictNF(mod2, testX);
 
-OUTPUT(mod3, NAMED('mod3'));
-
-losses := GNNI.GetLoss(mod3);
-OUTPUT(losses, NAMED('losses'));
-
-metrics := GNNI.EvaluateNF(mod3, testX, testY);
-
-OUTPUT(metrics, NAMED('metrics'));
-
-preds := GNNI.PredictNF(mod3, testX);
-
-OUTPUT(testY, ALL, NAMED('testDat'));
-OUTPUT(preds, NAMED('predictions'));
+ORDERED(
+  OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('start')),
+  OUTPUT(mod2, NAMED('mod2')),
+  OUTPUT(STD.Date.CurrentTime(TRUE), NAMED('end')),
+  PARALLEL(
+           OUTPUT(losses, NAMED('losses')),
+           OUTPUT(metrics, NAMED('metrics')),
+           OUTPUT(testY, ALL, NAMED('testDat')),
+           OUTPUT(preds, NAMED('predictions'))
+           )
+        );
