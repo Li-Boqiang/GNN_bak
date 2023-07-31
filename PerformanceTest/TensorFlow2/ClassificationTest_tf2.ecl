@@ -53,7 +53,7 @@ batchSize := 128;
 // Add more neurons to increase training time
 ldef := ['''layers.Dense(256, activation='tanh', input_shape=(5,))''',
           '''layers.Dense(1024, activation='relu')''',
-          '''layers.Dense(1024, activation='relu')''',
+          '''layers.Dense(10240, activation='relu')''',
           '''layers.Dense(10240, activation='relu')''',
           '''layers.Dense(1024, activation='relu')''',
           '''layers.Dense(256, activation='relu')''',

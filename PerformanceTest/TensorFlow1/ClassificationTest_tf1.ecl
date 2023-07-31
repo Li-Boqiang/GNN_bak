@@ -15,9 +15,9 @@ ldef := ['''layers.Dense(256, activation='tanh', input_shape=(5,))''',
           '''layers.Dense(256, activation='relu')''',
           '''layers.Dense(3, activation='softmax')'''];
 
-Start Time = 25519
-End Time   = 32605
-loss       = 0.02186837473418564
+Start Time = 33029
+End Time   = 40211
+loss       = 0.02119083986617625
 
 */
 
@@ -50,7 +50,7 @@ batchSize := 128;
 // Add more neurons to increase training time
 ldef := ['''layers.Dense(256, activation='tanh', input_shape=(5,))''',
           '''layers.Dense(1024, activation='relu')''',
-          '''layers.Dense(1024, activation='relu')''',
+          '''layers.Dense(10240, activation='relu')''',
           '''layers.Dense(10240, activation='relu')''',
           '''layers.Dense(1024, activation='relu')''',
           '''layers.Dense(256, activation='relu')''',
