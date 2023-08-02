@@ -166,8 +166,8 @@ OUTPUT(preds, NAMED('preds'));
 testYDat := Tensor.R4.GetData(testY);
 OUTPUT(SORT(testYDat, indexes), ALL, NAMED('testYDat'));
 
-predDat := Tensor.R4.GetData(preds);
-OUTPUT(SORT(predDat, indexes), ALL, NAMED('PredDat'));
+// predDat := Tensor.R4.GetData(preds);
+// OUTPUT(SORT(predDat, indexes), ALL, NAMED('PredDat'));
 
 // predDatClass := Utils.Probabilities2Class(predDat);
 // OUTPUT(SORT(predDatClass, indexes), ALL, NAMED('PredDatClass'));
