@@ -31,7 +31,7 @@ trainCount := 5000;
 // Number of Test records to use.
 testCount := 1000;
 // Number of Epochs to run
-numEpochs := 1;
+numEpochs := 20;
 // Records per batch per node
 batchSize := 128;
 // *** End Config Params
@@ -161,30 +161,26 @@ OUTPUT(metrics, NAMED('Metrics'));
 // each output class.  To choose the class with the highest probability, we call
 // Utils.Probabilities2Class(...) below.
 preds := GNNI.Predict(mod2, testX);
-OUTPUT(preds, NAMED('preds'));
 
 testYDat := Tensor.R4.GetData(testY);
-OUTPUT(testY,NAMED('testY'));
-OUTPUT(SORT(testYDat, indexes), ALL, NAMED('testYDat'));
+predDat := Tensor.R4.GetData(preds);
+OUTPUT(SORT(predDat, indexes), ALL, NAMED('PredDat'));
 
-// predDat := Tensor.R4.GetData(preds);
-// OUTPUT(SORT(predDat, indexes), ALL, NAMED('PredDat'));
+predDatClass := Utils.Probabilities2Class(predDat);
+OUTPUT(SORT(predDatClass, indexes), ALL, NAMED('PredDatClass'));
 
-// predDatClass := Utils.Probabilities2Class(predDat);
-// OUTPUT(SORT(predDatClass, indexes), ALL, NAMED('PredDatClass'));
+// Evaluate the predictions
+cmp := JOIN(DISTRIBUTE(test0, id), DISTRIBUTE(predDatClass, indexes[1]),
+                        LEFT.id = RIGHT.indexes[1],
+                        TRANSFORM({UNSIGNED id, UNSIGNED pred, UNSIGNED actual,
+                                      BOOLEAN correct},
+                                      SELF.id := LEFT.id,
+                                      SELF.pred := RIGHT.value,
+                                      SELF.actual := LEFT.y,
+                                      SELF.correct := SELF.pred = SELF.actual),
+                          LOCAL);
+OUTPUT(SORT(cmp, id), ALL, NAMED('PredCompare'));
 
-// // Evaluate the predictions
-// cmp := JOIN(DISTRIBUTE(test0, id), DISTRIBUTE(predDatClass, indexes[1]),
-//                         LEFT.id = RIGHT.indexes[1],
-//                         TRANSFORM({UNSIGNED id, UNSIGNED pred, UNSIGNED actual,
-//                                       BOOLEAN correct},
-//                                       SELF.id := LEFT.id,
-//                                       SELF.pred := RIGHT.value,
-//                                       SELF.actual := LEFT.y,
-//                                       SELF.correct := SELF.pred = SELF.actual),
-//                           LOCAL);
-// OUTPUT(SORT(cmp, id), ALL, NAMED('PredCompare'));
+acc := COUNT(cmp(correct = TRUE)) / COUNT(cmp);
 
-// acc := COUNT(cmp(correct = TRUE)) / COUNT(cmp);
-
-// OUTPUT(acc, NAMED('Accuracy'));
+OUTPUT(acc, NAMED('Accuracy'));

@@ -488,42 +488,40 @@ EXPORT Tensor
     SHARED STREAMED DATASET(TensData) extractData(STREAMED DATASET(t_Tensor) tens) := EMBED(Python:activity)
       import numpy as np
       import traceback as tb
-      try:
-        # Function to calculate an index given a flat (zero based) position
-        # Indexes are 1 based
-        shape = None
-        indxSizes = []
-        def calcIndxAt(pos):
-          indx = []
-          remainder = pos
+
+      # Function to calculate an index given a flat (zero based) position
+      # Indexes are 1 based
+      shape = None
+      indxSizes = []
+      def calcIndxAt(pos):
+        indx = []
+        remainder = pos
+        for i in range(len(shape)):
+          ix, remainder = divmod(remainder, indxSizes[i])
+          indx.append(int(ix + 1))
+        return indx
+      for rec in tens:
+        nodeId, wi, sliceId, shape, datatype, maxslicesize, slicesize, densedat, sparsedat = rec
+        if sliceId == 1:
+          sliceSize = slicesize
+        if not indxSizes:
           for i in range(len(shape)):
-            ix, remainder = divmod(remainder, indxSizes[i])
-            indx.append(int(ix + 1))
-          return indx
-        for rec in tens:
-          nodeId, wi, sliceId, shape, datatype, maxslicesize, slicesize, densedat, sparsedat = rec
-          if sliceId == 1:
-            sliceSize = slicesize
-          if not indxSizes:
-            for i in range(len(shape)):
-              indxSizes.append(int(np.prod(shape[i+1:])))
-          slicePos = maxslicesize * (sliceId - 1) # base position of slice
-          if not densedat:
-            # Do sparse decoding
-            for item in sparsedat:
-              offset, val = item
-              indx = calcIndxAt(slicePos + offset)
+            indxSizes.append(int(np.prod(shape[i+1:])))
+        slicePos = maxslicesize * (sliceId - 1) # base position of slice
+        if not densedat:
+          # Do sparse decoding
+          for item in sparsedat:
+            offset, val = item
+            indx = calcIndxAt(slicePos + offset)
+            yield((indx, val))
+        else:
+          # Do dense decoding
+          for v  in range(slicesize):
+            val = densedat[v]
+            if abs(val) > .000000001: # Only output non-zero entries
+                                      #  +/- 10^-9 is considered zero
+              indx = calcIndxAt(slicePos + v) # @ the position in the flattened array
               yield((indx, val))
-          else:
-            # Do dense decoding
-            for v  in range(slicesize):
-              val = densedat[v]
-              if abs(val) > .000000001: # Only output non-zero entries
-                                        #  +/- 10^-9 is considered zero
-                indx = calcIndxAt(slicePos + v) # @ the position in the flattened array
-                yield((indx, val))
-      except:
-        assert 0 == 1, 'Tensor.extractData: ' + tb.format_exc()
 
     ENDEMBED;
 
@@ -682,8 +680,10 @@ EXPORT Tensor
     EXPORT DATASET(TensData) GetData(DATASET(t_Tensor) tens) := FUNCTION
       // Get rid of any replicated records and leave distributed by wi and sliceId
       dereplicated := deReplicate(tens);
+      od := OUTPUT(dereplicated, NAMED('dereplicated'), EXTEND);
       dat := extractData(dereplicated);
-      RETURN dat;
+      // RETURN dat;
+      RETURN WHEN(dat, od);
     END;
     /**
       * Convert sparse data to dense data
