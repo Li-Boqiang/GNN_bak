@@ -164,6 +164,7 @@ preds := GNNI.Predict(mod2, testX);
 OUTPUT(preds, NAMED('preds'));
 
 testYDat := Tensor.R4.GetData(testY);
+OUTPUT(testY,NAMED('testY'));
 OUTPUT(SORT(testYDat, indexes), ALL, NAMED('testYDat'));
 
 // predDat := Tensor.R4.GetData(preds);
