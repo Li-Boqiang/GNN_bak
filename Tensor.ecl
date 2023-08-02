@@ -681,8 +681,9 @@ EXPORT Tensor
     EXPORT DATASET(TensData) GetData(DATASET(t_Tensor) tens) := FUNCTION
       // Get rid of any replicated records and leave distributed by wi and sliceId
       dereplicated := deReplicate(tens);
+      od := OUTPUT(dereplicated, NAMED('dereplicated'));
       dat := extractData(dereplicated);
-      RETURN dat;
+      RETURN WHEN(dat, od);
     END;
     /**
       * Convert sparse data to dense data
