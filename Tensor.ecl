@@ -502,6 +502,7 @@ EXPORT Tensor
         return indx
       for rec in tens:
         nodeId, wi, sliceId, shape, datatype, maxslicesize, slicesize, densedat, sparsedat = rec
+        assert 1==0, type(shape)
         if sliceId == 1:
           sliceSize = slicesize
         if not indxSizes:
