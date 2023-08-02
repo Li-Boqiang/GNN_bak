@@ -17,7 +17,7 @@ IMPORT $.^.^ AS GNN;
 IMPORT GNN.Tensor;
 IMPORT GNN.Internal.Types AS iTypes;
 IMPORT GNN.Types;
-IMPORT GNN.GNNI;
+IMPORT GNN.GNNI_tf1;
 IMPORT GNN.Internal AS Int;
 IMPORT GNN.Utils;
 IMPORT Std.System.Thorlib;
@@ -140,34 +140,34 @@ ldef := ['''layers.TimeDistributed(layers.Conv1D(filters=64, kernel_size=1, acti
 // Keras supported compile parameters can be used in this line.
 compileDef := '''compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])''';
 
-// Get the GNNI session token.  This is used as input to DefineModel below.
-s := GNNI.GetSession();
+// Get the GNNI_tf1 session token.  This is used as input to DefineModel below.
+s := GNNI_tf1.GetSession();
 // Define the model.  The returned model token is used in subsequent calls.
-mod := GNNI.DefineModel(s, ldef, compileDef);
+mod := GNNI_tf1.DefineModel(s, ldef, compileDef);
 // Get the weights
-wts := GNNI.GetWeights(mod);
+wts := GNNI_tf1.GetWeights(mod);
 OUTPUT(wts, NAMED('InitWeights'));
-// Train the model.  See notes on batchSize and numEpochs in the GNNI documentation.  Note that
+// Train the model.  See notes on batchSize and numEpochs in the GNNI_tf1 documentation.  Note that
 // a second model token is returned here.  It is important that this second token be used
 // for subsequent calls as it references the trained model, whereas mod references the pre-training
 // model.
-mod2 := GNNI.Fit(mod, trainX, trainY, batchSize := batchSize, numEpochs := numEpochs);
+mod2 := GNNI_tf1.Fit(mod, trainX, trainY, batchSize := batchSize, numEpochs := numEpochs);
 // Evaluate the model.
 // Returns a set of metrics as defined by compileDef above.
-metrics := GNNI.EvaluateMod(mod2, testX, testY);
+metrics := GNNI_tf1.EvaluateMod(mod2, testX, testY);
 OUTPUT(metrics, NAMED('Metrics'));
 
 // Use the model for predictions.  Note that the predictions are in the form of probabilities for
 // each output class.  To choose the class with the highest probability, we call
 // Utils.Probabilities2Class(...) below.
-preds := GNNI.Predict(mod2, testX);
+preds := GNNI_tf1.Predict(mod2, testX);
 OUTPUT(preds, NAMED('preds'));
 
 testYDat := Tensor.R4.GetData(testY);
 OUTPUT(SORT(testYDat, indexes), ALL, NAMED('testYDat'));
 
-// predDat := Tensor.R4.GetData(preds);
-// OUTPUT(SORT(predDat, indexes), ALL, NAMED('PredDat'));
+predDat := Tensor.R4.GetData(preds);
+OUTPUT(SORT(predDat, indexes), ALL, NAMED('PredDat'));
 
 // predDatClass := Utils.Probabilities2Class(predDat);
 // OUTPUT(SORT(predDatClass, indexes), ALL, NAMED('PredDatClass'));
