@@ -509,7 +509,7 @@ EXPORT Tensor
             indxSizes.append(int(np.prod(shape[i+1:])))
         slicePos = maxslicesize * (sliceId - 1) # base position of slice
         if not densedat:
-          assert 1==0, 'not densedata'
+          assert 1==0, densedat
           # Do sparse decoding
           for item in sparsedat:
             offset, val = item
